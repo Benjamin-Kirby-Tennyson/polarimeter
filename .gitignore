@@ -1,0 +1,64 @@
+.venv/
+__pycache__/
+data/
+.cache/
+
+# Python bytecode, package builds and test/tool caches
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# Other local virtual environment names
+.venv*/
+venv/
+env/
+ENV/
+
+# Generated acquisition/analysis data; keep shared fixtures via explicit exceptions
+*.csv
+*.tsv
+*.npy
+*.npz
+*.h5
+*.hdf5
+outputs/
+results/
+plots/
+
+# Temporary files, editor backups and runtime logs
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+*.log
+codex-write-test*.txt
+.DS_Store
+
+# Local environment settings, credentials and private keys
+.env
+.env.*
+!.env.example
+!.env.sample
+secrets/
+credentials*.json
+*service-account*.json
+*.pem
+*.key
+id_rsa
+id_ed25519
+.ssh/
+.aws/
+.codex/
