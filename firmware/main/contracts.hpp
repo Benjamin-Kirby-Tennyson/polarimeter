@@ -1,5 +1,5 @@
 #pragma once
-// PROPOSED, NOT TARGET-COMPILED. No UART/GPIO/PCNT driver is initialized.
+// Mock-only; Stage 5 build evidence is versioned. No target execution or live peripherals.
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -47,7 +47,9 @@ i<end+9;
     return expected==crc32(data,end);
 }
 inline bool decode(const std::uint8_t* data,std::size_t size,Command& command){
-    if(!envelope(data,size))return false;
+    if(!envelope(data,size)){command={};
+return false;
+    }
     const std::string_view frame(reinterpret_cast<const char*>(data),size);
     const auto begin=frame.find(' ',5)+1;
     return admit(frame.substr(begin,size-10-begin),command);
@@ -87,8 +89,32 @@ struct CompileOnlyTarget final {
     Outcome outcome=Outcome::none;
     std::uint64_t accepted=0,errors=0;
     Command command;
+    struct Event {bool error=false;
+Command command;
+};
+    std::array<Event,8> events{};
+    std::size_t event_count=0;
+    bool overflow=false,fatal_timing=false;
+    void emit(bool error,const Command& value={}){
+        if(event_count==events.size()){overflow=true;
+fault=true;
+output.inhibit();
+return;
+        }
+        events[event_count++]={error,value};
+    }
+    void clear_events(){
+        for(std::size_t i=0;
+i<event_count;
+++i)events[i]={};
+        event_count=0;
+overflow=false;
+    }
     void reject() {fault=true;
-++errors;
+command={};
+if(errors<std::numeric_limits<std::uint64_t>::max())++errors;
+else fatal_timing=true;
+emit(true);
 outcome=Outcome::error;
 output.inhibit();
 used=0;
@@ -97,7 +123,8 @@ discard=true;
     }
     void poll(std::uint64_t now,std::uint64_t partial_timeout_us) {
         outcome=Outcome::none;
-        if(partial_timeout_us==0 || (seen_clock && now<last)) {reject();
+        if(partial_timeout_us==0 || (seen_clock && now<last)) {fatal_timing=true;
+reject();
 return;
         }
         last=now;
@@ -107,7 +134,7 @@ seen_clock=true;
     }
     void feed(const std::uint8_t* data,std::size_t n,std::uint64_t now,std::uint64_t timeout) {
         poll(now,timeout);
-        if(seen_clock && now<last)return;
+        if(fatal_timing)return;
         if(n>chunk_max) {reject();
 return;
         }
@@ -129,10 +156,17 @@ continue;
                 // Admission changes counters/last command only, never outputs.
                 Command candidate;
                 if(!decode(buffer.data(),used,candidate)){fault=true;
-++errors;
+if(errors<std::numeric_limits<std::uint64_t>::max())++errors;
+else fatal_timing=true;
+emit(true);
+command={};
 outcome=Outcome::error;
                 }
+                else if(accepted==std::numeric_limits<std::uint64_t>::max()){fatal_timing=true;
+reject();
+                }
                 else{command=candidate;
+emit(false,candidate);
 ++accepted;
 outcome=Outcome::accepted;
                 }

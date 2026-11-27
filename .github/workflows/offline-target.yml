@@ -65,6 +65,17 @@ jobs:
           cp firmware/build/*.bin artifacts/
           cp firmware/build/*.elf artifacts/
           cp firmware/sdkconfig artifacts/sdkconfig
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          rows=[]
+          for index,p in enumerate(Path('firmware/build').rglob('*.su')):
+              name=f'stack-{index}-{p.name}'
+              shutil.copyfile(p,Path('artifacts')/name)
+              rows.append(str(p)+': '+p.read_text())
+          Path('artifacts/target-stack-usage.txt').write_text('\n'.join(rows))
+          if not rows:raise SystemExit('Missing compiler stack-usage evidence')
+          PY
           sha256sum artifacts/*.bin artifacts/*.elf artifacts/*.map > artifacts/target-SHA256SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()

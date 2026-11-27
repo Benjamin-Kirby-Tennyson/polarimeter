@@ -19,7 +19,7 @@ struct Command {
     std::uint64_t rid=0,deadline=0,generation=0,config_generation=0,heartbeat=0,duration=0;
     double target=0,speed=0,acceleration=0,minimum=0,maximum=0,counts=0,pstart=0,pend=0,pband=0;
 };
-inline bool admit(std::string_view payload,Command& c){
+inline bool admit_candidate(std::string_view payload,Command& c){
     Json j(payload);
 if(!j.parse())return false;
     auto text=[&](const char* k,std::string& out){const auto* n=j.get(k);
@@ -39,10 +39,12 @@ return true;
 if(!v||v->kind!=Kind::number||v->text!="1")return false;
     std::string mode;
 if(!text("mode",mode)||mode!="SIMULATED"||!text("type",c.type)||!dec("request_id",c.rid,true))return false;
-    std::string allowed="|v|mode|type|request_id|boot_id|session_id|";
-    auto fields=[&](std::initializer_list<const char*> names){for(const auto* k:names){allowed+=k;
-allowed+='|';
-}};
+    std::array<std::string_view,24> allowed{};
+    std::size_t allowed_count=0;
+    auto fields=[&](std::initializer_list<const char*> names){
+        for(const auto* name:names)allowed[allowed_count++]=name;
+    };
+    fields({"v","mode","type","request_id","boot_id","session_id"});
     if(c.type=="HELLO"){
         fields({"host_nonce"});
 const auto* b=j.get("boot_id");
@@ -93,12 +95,27 @@ if(!numeric("plateau_start_deg",c.pstart)||!numeric("plateau_end_deg",c.pend)||!
             }
         }else if(c.type!="STOP"&&c.type!="GET_STATUS"&&c.type!="DISARM"&&c.type!="CLEAR_FAULT")return false;
     }
+    std::size_t actual_count=0;
     for(int i=j.nodes[0].first;
 i>=0;
 i=j.nodes[i].next){const auto& key=j.nodes[j.nodes[i].key].text;
-if(allowed.find("|"+key+"|")==std::string::npos)return false;
+++actual_count;
+        bool found=false;
+        for(std::size_t k=0;
+k<allowed_count;
+++k)if(key==allowed[k])found=true;
+        if(!found)return false;
     }
+    if(actual_count!=allowed_count)return false;
     c.raw=payload;
 return true;
+}
+inline bool admit(std::string_view payload,Command& output){
+    Command candidate;
+    if(!admit_candidate(payload,candidate)){output={};
+return false;
+    }
+    output=std::move(candidate);
+    return true;
 }
 } // namespace qwp

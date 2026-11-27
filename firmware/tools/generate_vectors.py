@@ -37,6 +37,10 @@ def fixtures():
                         ('noncanonical-id',{'request_id':'02'}),('float-version',{'v':1.0}),
                         ('wrong-mode',{'mode':'HARDWARE'}),('bad-identity',{'boot_id':'abc'})]:
         cases.append((name,encode_frame(dict(valid,**change)),True))
+    for key in ('v|mode','mode|type','request_id|boot_id','|v','v|'):
+        cases.append(('delimiter-key-'+key,encode_frame(dict(valid,**{key:1})),True))
+    payload=json.dumps(dict(valid,**{'v|mode':1}),separators=(',',':')).encode().replace(b'v|mode',b'v\\u007cmode')
+    cases.append(('escaped-delimiter-key',framed(payload),True))
     rows=[]
     for name,frame,env in cases:
         host=schema=False
