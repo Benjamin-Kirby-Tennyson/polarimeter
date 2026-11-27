@@ -311,6 +311,7 @@ class RotationLog:
         self.metadata = dict(metadata or {})
         self.finished = False
         self.raw_count = self.optical_count = 0
+        self.acquisition_identities = set()
         self.raw_file = self.raw_path.open("x", newline="", encoding="utf-8")
         try:
             self.sample_file = self.sample_path.open("x", newline="", encoding="utf-8")
@@ -342,6 +343,11 @@ class RotationLog:
         if sample["mode"]!="SIMULATED":
             raise ValueError("Only simulated optical records supported")
         if sample is not None:
+            identity_keys=("experiment_id","boot_id","session_id","arm_generation","motion_id","reference_epoch","config_id","calibration_id")
+            values=tuple(str(sample[k]) for k in identity_keys)
+            if values not in self.acquisition_identities and len(self.acquisition_identities)>=8:
+                raise ValueError("Too many optical acquisition identities")
+            self.acquisition_identities.add(values)
             if self.optical is None:
                 self.optical = csv.DictWriter(self.sample_file, tuple(sample))
                 self.optical.writeheader()
@@ -386,7 +392,8 @@ class RotationLog:
                       phase=phase, detail=detail, data_complete=error is None,
                       metadata=self.metadata, metrics=metrics,
                       written_encoder_rows=self.raw_count, written_exposure_rows=self.optical_count,
-                      files=dict(encoder=self.raw_path.name,optical=self.sample_path.name),data_sha256=hashes)
+                      files=dict(encoder=self.raw_path.name,optical=self.sample_path.name),data_sha256=hashes,
+                      acquisition_identities=[dict(zip(("experiment_id","boot_id","session_id","arm_generation","motion_id","reference_epoch","config_id","calibration_id"),v)) for v in sorted(self.acquisition_identities)])
         temporary = self.manifest_path.with_suffix(".json.tmp")
         try:
             with temporary.open("x", encoding="utf-8") as stream:

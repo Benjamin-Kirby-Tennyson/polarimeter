@@ -9,11 +9,12 @@ Phase 2 [hardware discovery and integration readiness](docs/hardware-readiness.m
 records the current USB inventory, communication-code audit, physical wiring
 checklist, passive-observation plan and future measurement/encoder timing design.
 The CP2102 and touchscreen are identified; no separate USB optical measurement
-device is positively identified. The latest [Stage 5 report](docs/offline-stage5.md) records **184 passing Pi tests**,
-including eleven mapped GUI tests, an independent simulated detector schedule and
-an explicit [Stokes analysis workflow](docs/simulated-stokes-analysis.md) with
-hashed result sidecars. Hosted CI passed **352 native C++ checks** and compiled
-the mock ESP32 image. Target execution and physical operation remain unverified.
+device is positively identified. The latest [Stage 6 report](docs/offline-stage6.md) records **189 passing Pi tests**,
+including eleven mapped GUI tests, raw mock encoder/reference integration and an
+ordered parser/controller endpoint. Separate [Stokes analysis](docs/simulated-stokes-analysis.md)
+saves hashed result sidecars. Hosted build/conformance evidence is linked in the
+report. Use the [commissioning checklist](docs/physical-commissioning-checklist.md)
+to record the remaining board, encoder, wiring and isolation evidence.
 
 ## Launch the touchscreen interface
 
@@ -245,7 +246,7 @@ a labelled CSV, and used about 25 MiB peak process RSS. A screenshot was
 inspected for layout fit. This is a short simulation measurement, not a
 long-duration resource or hardware validation.
 
-On 2026-11-27 the complete opt-in suite passed **184 tests with no skips**,
+On 2026-11-27 the complete opt-in suite passed **189 tests with no skips**,
 including eleven mapped-window GUI tests. It covers the original optics/CLI and
 desktop-health behavior, serial locks/mocks, bounded codec, controller faults,
 simulated plant/PI, framed host, exposure timing, streamed provenance and worker

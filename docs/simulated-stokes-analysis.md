@@ -85,3 +85,10 @@ normal estimator, compare correct +5° inferred calibration and the uncalibrated
 case, and poison truth fields to verify they cannot enter the normal fit.
 See the [Stage 5 report](offline-stage5.md) for executed counts, end-to-end
 results, model-error fixtures and remaining limitations.
+
+
+Stage 6 additionally checks every scalar output for finiteness, detects temporal
+gaps with consecutive IDs when acquisition cadence is declared, and verifies full
+identity/count consistency against finalized manifests. See the
+[current integrity report](offline-stage6.md). Without a declared cadence the fit
+flags CADENCE_UNSPECIFIED; ID adjacency alone does not certify temporal coverage.

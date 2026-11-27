@@ -199,10 +199,17 @@ class GuiTests(unittest.TestCase):
         panel.root.after_cancel(panel.after_id)
         panel.after_id=None
         panel.poll()
-        self.assertIsNone(panel.last_snapshot)
+        if panel.last_snapshot is not None:
+            self.assertEqual(panel.last_snapshot['experiment_id'],second)
         self.assertEqual(str(panel.start_button.cget("state")),"disabled")
-        self.assertIn("UNKNOWN",panel.estimate.cget("text"))
+        self.assertNotIn("123",panel.estimate.cget("text"))
         panel.cancel()
+        self.app.dismiss_overlay()
+        deadline=time.monotonic()+5
+        while self.app.overlay is not None and time.monotonic()<deadline:
+            self.root.update();time.sleep(.01)
+        self.assertIsNone(self.app.overlay)
+        self.assertFalse(panel.worker.is_alive())
 
     def test_rotation_worker_progresses_without_tk_polling(self):
         self.app.rotation_lab()

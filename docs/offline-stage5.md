@@ -1,5 +1,9 @@
 # Stage 5: detector cadence, analysis workflow and compiled mock target
 
+Historical report at `3e76392`. [Stage 6](offline-stage6.md) supersedes the
+trusted feedback-gate projection and parser delivery details with raw-sample
+estimation and an ordered endpoint. Build/test figures below are for Stage 5.
+
 2026-11-27. **SIMULATED/COMPILE-ONLY SOFTWARE.** Implements the
 [058225c re-review](https://github.com/Benjamin-Kirby-Tennyson/polarimeter/issues/1#issuecomment-7228930249).
 No installed firmware identified, physical port opened, GPIO/PCNT/PWM allocated,

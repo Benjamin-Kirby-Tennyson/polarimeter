@@ -71,7 +71,16 @@ Keep the passive-observation path in
 
 ## Verification and changes
 
-### Stage 5 current software verification
+### Stage 6 current software verification
+
+[Stage 6](offline-stage6.md) records exact schema admission, ordered endpoint
+batches, internally derived raw encoder/reference state and shared framed-input
+conformance traces. Pi discovery: **189 passed, no skips**, including eleven GUI
+tests. This remains a mock-only firmware candidate; installed firmware and all
+physical measurements remain UNKNOWN. The [physical commissioning checklist](physical-commissioning-checklist.md)
+prioritizes the user evidence needed before separate bench authorization.
+
+### Stage 5 software verification (historical)
 
 [Stage 5](offline-stage5.md) records independent detector cadence, preserved
 unassociated raw exposures, guarded Stokes fitting and immutable hashed result
