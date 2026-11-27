@@ -81,3 +81,8 @@ id_ed25519
 .ssh/
 .aws/
 .codex/
+
+# Future ESP-IDF generated files; source/config defaults and fixtures are versioned
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
