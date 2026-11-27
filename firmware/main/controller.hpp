@@ -321,7 +321,7 @@ encoder.clear();
 tainted=exhausted=false;
 state=faults.empty()?"DISARMED":"FAULT";
                 const auto candidate=fresh_id();
-                if(candidate.empty())hello_outcome="REJECTED";
+                if(candidate.empty()){fault("IDENTITY");hello_outcome="REJECTED";}
                 else{session=candidate;
 cache.clear();
 request_id=0;
