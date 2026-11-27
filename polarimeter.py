@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only detector acquisition; simulation is explicitly opt-in."""
+"""Detector acquisition and safe Tk GUI; simulation is explicitly opt-in."""
 import argparse
 import csv
 from collections import deque
@@ -27,6 +27,10 @@ def parse_sample(line, fmt, column, key):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--list-ports', action='store_true')
+    p.add_argument('--gui', action='store_true', help='640×480 Tk interface; hardware remains locked')
+    p.add_argument('--touch-check', action='store_true', help='Tk finger/pointer target check; no device probing')
+    p.add_argument('--windowed', action='store_true', help='development: decorated GUI instead of fullscreen')
+    p.add_argument('--data-dir', type=Path, default=Path('data'), help='GUI CSV base directory; simulation uses a simulated/ subdirectory')
     p.add_argument('--simulate', action='store_true', help='clearly labelled synthetic detector data')
     p.add_argument('--port')
     p.add_argument('--baud', type=int, help='required for hardware; inspect firmware first')
@@ -42,6 +46,8 @@ def main():
     p.add_argument('--no-plot', action='store_true', help='CSV logging only; no Matplotlib required')
     a = p.parse_args()
     if a.list_ports:
+        if a.gui or a.touch_check or a.simulate:
+            p.error('--list-ports cannot be combined with GUI or acquisition modes')
         from serial.tools import list_ports
         ports = list(list_ports.comports())
         for port in ports:
@@ -49,6 +55,16 @@ def main():
         if not ports:
             print('No serial ports visible in this session.')
         return 0
+    if a.gui or a.touch_check:
+        if a.port or a.baud is not None or a.format or a.headless or a.no_plot or a.plot_file or a.output or a.seconds:
+            p.error('GUI does not accept serial, legacy output/plot or duration options; use --data-dir for CSV')
+        if not math.isfinite(a.rate) or not 1 <= a.rate <= 50 or not 2 <= a.window <= 2000:
+            p.error('GUI requires rate 1..50 Hz and history window 2..2000')
+        from polarimeter_gui import run_gui
+        return run_gui(simulate=a.simulate, directory=a.data_dir, window=a.window,
+                       rate=a.rate, fullscreen=not a.windowed, touch_check=a.touch_check)
+    if a.windowed or a.data_dir != Path('data'):
+        p.error('--windowed and --data-dir require --gui or --touch-check')
     if a.window < 2 or a.rate <= 0 or a.seconds < 0 or a.column < 0:
         p.error('window must be >=2, rate >0, seconds >=0, column >=0')
     if a.simulate and (a.port or a.baud or a.format):
@@ -57,6 +73,9 @@ def main():
         p.error('hardware requires explicit --port, --baud and --format after firmware inspection')
     if a.baud is not None and a.baud <= 0:
         p.error('baud must be positive')
+    if not a.simulate:
+        from polarimeter_serial import LOCK_REASON
+        p.error(LOCK_REASON)
     if (a.headless or a.no_plot) and a.seconds == 0:
         p.error('--headless requires a finite --seconds duration')
     if not a.no_plot:
