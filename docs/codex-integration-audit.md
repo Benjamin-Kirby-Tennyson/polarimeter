@@ -71,7 +71,18 @@ Keep the passive-observation path in
 
 ## Verification and changes
 
-### Offline host/acquisition integration stage 4
+### Stage 5 current software verification
+
+[Stage 5](offline-stage5.md) records independent detector cadence, preserved
+unassociated raw exposures, guarded Stokes fitting and immutable hashed result
+sidecars. Pi opt-in discovery: **184 passed, no skips**, including eleven GUI
+tests. Hosted native C++ conformance: **352 passed, zero failed** with sanitizers;
+classic ESP32 compile/link passed with pinned ESP-IDF v5.3.4. Target execution,
+PCNT/reference/feedback equivalence and physical validation remain pending.
+Installed firmware identity is still UNKNOWN. Build versions/hashes/resource map
+are captured in [build evidence](build-evidence-20261127.json).
+
+### Offline host/acquisition integration stage 4 (historical)
 
 The [Stage 4 report](offline-rotation-stage4.md) records the finite multi-turn
 scan, framed in-memory host, worker-owned acquisition, streamed provenance and

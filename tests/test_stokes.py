@@ -77,7 +77,7 @@ class StokesTests(unittest.TestCase):
     def test_rank_bad_time_identity_and_hardware_are_rejected(self):
         rows=list(records(JonesModel()))
         for row in rows:row['estimated_start_deg']=row['estimated_end_deg']=0
-        with self.assertRaisesRegex(ValueError,'Rank'):fit(rows)
+        with self.assertRaisesRegex(ValueError,'Rank|90 degrees'):fit(rows)
         for changes in ({'mode':'HARDWARE'},{'session_id':'other'},{'mapped_end_us':-1},{'intensity_au':float('nan')}):
             rows=list(records(JonesModel()))
             rows[10].update(changes)

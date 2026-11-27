@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import csv
 import json
+import hashlib
 import math
 import os
 from pathlib import Path
@@ -57,6 +58,12 @@ class OpticalAcquisition:
         self._identity = None
         self._discontinuity = None
         self.expected = self.missing = self.gap_count = 0
+        self.pending_exposures = deque()
+        self._next_end_us = self.period_us
+        self._detector_sequence = 0
+        self._detector_last_us = None
+        self.drop_next_exposure = False
+        self.cadence_source = "HOST_OBSERVED_SLOT_ESTIMATE"
         self.span_deg = self.contiguous_deg = 0.0
         self._first_valid = self._previous_valid = None
         self._last_sequence = self._last_emit = None
@@ -83,7 +90,7 @@ class OpticalAcquisition:
             self.truth_history.clear()
         self.truth_history.append(dict(time=time_us, truth=angle))
 
-    def record(self, packet):
+    def observe(self, packet):
         if packet["mode"] != self.mode:
             raise ValueError("Hardware samples cannot enter a simulated acquisition")
         seq, now = int(packet["seq"]), int(packet["time_us"])
@@ -104,8 +111,17 @@ class OpticalAcquisition:
                      angle=packet["angle"], truth=packet["truth"], velocity=packet["velocity"],
                      motion=packet["motion"], ref=packet["ref"], state=packet["state"], gap=gap)
         self.history.append(point)
-        # Session feeds physics independently; direct offline fixtures can use
-        # the packet truth timeline. Neither path consults estimated mapping.
+        return point
+
+    def record(self, packet):
+        """Legacy offline fixture helper: HOST_OBSERVED_SLOT_ESTIMATE only.
+
+        Production sessions use observe/advance/deliver with independent cadence.
+        """
+        point = self.observe(packet)
+        if point is None:
+            return None
+        now = int(packet["time_us"])
         if packet["truth"] is not None and (not self.truth_history or self.truth_history[-1]["time"] < now):
             self.record_truth(now, packet["truth"])
         if packet["kind"] != "SCAN" or packet["state"] != "RUNNING" or point["angle"] is None:
@@ -122,12 +138,17 @@ class OpticalAcquisition:
         self._last_emit = now
         self.sequence += slots
         start, end = now - self.period_us - self.exposure_us, now - self.period_us
+        sample = self.generate(start, end, self.sequence, packet)
+        return self.associate(sample)
+
+    def generate(self, start, end, sequence, packet):
+        """Detector physics and identity at a scheduled exposure, before association."""
         optical_start = self.detector_clock.to_device(start)
         optical_end = self.detector_clock.to_device(end)
         sample = dict(mode=self.mode, experiment_id=self.experiment_id,
             boot_id=packet["boot_id"], session_id=packet["session_id"], arm_generation=packet["generation"],
-            motion_id=point["motion"], reference_epoch=point["ref"], config_id=self.config_id,
-            calibration_id=self.calibration_id, sequence=self.sequence, raw_sequence=seq,
+            motion_id=packet["motion"], reference_epoch=packet["ref"], config_id=self.config_id,
+            calibration_id=self.calibration_id, sequence=sequence, raw_sequence=None,
             actual_start_us=start, actual_end_us=end,
             optical_start_us=optical_start, optical_end_us=optical_end,
             mapped_start_us=None, mapped_end_us=None, midpoint_us=None,
@@ -149,6 +170,68 @@ class OpticalAcquisition:
             sample.update(intensity_au=integral/(end-start), truth_start_deg=true_lo, truth_end_deg=true_hi,
                 optical_truth_deg=self.interpolate(truth_rows, (start+end)/2, "truth")[0],
                 optical_truth_velocity_deg_s=(true_hi-true_lo)*1e6/(end-start))
+        except (ValueError, ArithmeticError) as error:
+            sample["quality"] = "DETECTOR_TRUTH_UNAVAILABLE: " + str(error)
+        return sample
+
+    def advance(self, now_us, physics):
+        """Fixed 20ms fixture cadence; gate uses endpoint mechanical truth at end.
+
+        Called independently of status RX. Collection requires SCAN/RUNNING and
+        mechanical truth inside the directed plateau at exposure END. Full
+        exposure/uncertainty acceptance is a separate host association decision.
+        """
+        uint(now_us)
+        if self._detector_last_us is not None and now_us<self._detector_last_us:
+            raise ValueError("Independent detector clock moved backwards")
+        self._detector_last_us=now_us
+        self.cadence_source = "INDEPENDENT_SIMULATED_DETECTOR"
+        due = max(0, (now_us-self._next_end_us)//self.period_us+1)
+        if due > 1:
+            raise ValueError("Independent detector must be polled at least once per period")
+        if not due:
+            return
+        end = self._next_end_us
+        if end != now_us:
+            raise ValueError("Fixture cadence requires exact exposure-end polling")
+        self._next_end_us += self.period_us
+        self._detector_sequence += 1
+        p=self.plan
+        direction=1 if p["plateau_end_deg"]>p["plateau_start_deg"] else -1
+        angle=physics["mechanical_truth_deg"]
+        gate=(physics["state"]=="RUNNING" and physics["kind"]=="SCAN" and
+              0<=direction*(angle-p["plateau_start_deg"])<=direction*(p["plateau_end_deg"]-p["plateau_start_deg"]))
+        if not gate:
+            return
+        self.expected += 1
+        if self.drop_next_exposure:
+            self.drop_next_exposure=False
+            self.missing+=1
+            return
+        if len(self.pending_exposures)>=32:
+            raise BufferError("Independent detector delivery queue overflow")
+        sample=self.generate(end-self.exposure_us,end,self._detector_sequence,physics)
+        self.pending_exposures.append((end+self.period_us,sample))
+
+    def deliver(self, now_us, *, drain=False):
+        uint(now_us)
+        rows=[]
+        while self.pending_exposures and (drain or self.pending_exposures[0][0]<=now_us):
+            _,sample=self.pending_exposures.popleft()
+            if drain:
+                sample["quality"]="UNDELIVERED_AT_SESSION_END"
+            rows.append(self.associate(sample))
+        return rows
+
+    def associate(self, sample):
+        start,end=sample["actual_start_us"],sample["actual_end_us"]
+        optical_start,optical_end=sample["optical_start_us"],sample["optical_end_us"]
+        current=tuple(sample[k] for k in ("boot_id","session_id","arm_generation","motion_id","reference_epoch"))
+        p=self.plan
+        direction=1 if p["plateau_end_deg"]>p["plateau_start_deg"] else -1
+        try:
+            if sample["quality"]!="VALID":
+                raise ValueError(sample["quality"])
             if self._discontinuity:
                 reason, self._discontinuity = self._discontinuity, None
                 raise ValueError(reason)
@@ -173,7 +256,7 @@ class OpticalAcquisition:
             covered = [r for r in rows if lo-u <= r["time"] <= hi+u]
             covered.extend((left,right,start_left,start_right,end_left,end_right))
             ordered = sorted({r["time"]:r for r in covered}.values(), key=lambda r:r["time"])
-            sample.update(bracket_sequences=json.dumps([r["sequence"] for r in ordered]),
+            sample.update(raw_sequence=right["sequence"], bracket_sequences=json.dumps([r["sequence"] for r in ordered]),
                           bracket_identity=json.dumps(list(current)))
             if any(r["gap"] for r in covered):
                 raise ValueError("SEQUENCE_GAP")
@@ -203,12 +286,12 @@ class OpticalAcquisition:
             if self._first_valid is None:
                 self._first_valid = sample["estimated_angle_deg"]
             self.span_deg = abs(sample["estimated_angle_deg"]-self._first_valid)
-            if (self._previous_valid is not None and self._previous_valid[0]+1 == self.sequence
+            if (self._previous_valid is not None and self._previous_valid[0]+1 == sample["sequence"]
                     and self._previous_valid[2] == current):
                 self.contiguous_deg += abs(sample["estimated_angle_deg"]-self._previous_valid[1])
             elif self._previous_valid is not None:
                 self.gap_count += 1
-            self._previous_valid = self.sequence, sample["estimated_angle_deg"], current
+            self._previous_valid = sample["sequence"], sample["estimated_angle_deg"], current
         else:
             self.rejected += 1
         return sample
@@ -249,15 +332,21 @@ class RotationLog:
         self.raw.writerow(packet)
         self.raw_count += 1
         if sample is not None:
+            self.write_sample(sample)
+        if int(packet["time_us"]) - self._last_flush >= 1000000:
+            self.raw_file.flush()
+            self.sample_file.flush()
+            self._last_flush = int(packet["time_us"])
+
+    def write_sample(self, sample):
+        if sample["mode"]!="SIMULATED":
+            raise ValueError("Only simulated optical records supported")
+        if sample is not None:
             if self.optical is None:
                 self.optical = csv.DictWriter(self.sample_file, tuple(sample))
                 self.optical.writeheader()
             self.optical.writerow(sample)
             self.optical_count += 1
-        if int(packet["time_us"]) - self._last_flush >= 1000000:
-            self.raw_file.flush()
-            self.sample_file.flush()
-            self._last_flush = int(packet["time_us"])
 
     def close(self):
         try:
@@ -282,10 +371,22 @@ class RotationLog:
                 error = error or exc
         if error is not None:
             phase, detail = "UNKNOWN", detail + "; final data flush/close failed: " + str(error)
+        hashes={}
+        if error is None:
+            try:
+                for label,path in (("encoder",self.raw_path),("optical",self.sample_path)):
+                    digest=hashlib.sha256()
+                    with path.open("rb") as stream:
+                        for chunk in iter(lambda:stream.read(65536),b""):digest.update(chunk)
+                    hashes[label]=digest.hexdigest()
+            except OSError as exc:
+                error=exc
+                phase,detail="UNKNOWN",detail+"; final data hash failed: "+str(exc)
         record = dict(mode="SIMULATED", measured_hardware=False, reconstruction="PENDING",
                       phase=phase, detail=detail, data_complete=error is None,
                       metadata=self.metadata, metrics=metrics,
-                      written_encoder_rows=self.raw_count, written_exposure_rows=self.optical_count)
+                      written_encoder_rows=self.raw_count, written_exposure_rows=self.optical_count,
+                      files=dict(encoder=self.raw_path.name,optical=self.sample_path.name),data_sha256=hashes)
         temporary = self.manifest_path.with_suffix(".json.tmp")
         try:
             with temporary.open("x", encoding="utf-8") as stream:

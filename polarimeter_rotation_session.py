@@ -27,6 +27,8 @@ class RotationSession:
             loop=asdict(harness.loop), timing=asdict(harness.controller.timing),
             readiness=asdict(harness.controller.readiness), config=config, plan=plan,
             detector_clock=asdict(clock), exposure_us=10000, period_us=20000,
+            collection_gate="endpoint mechanical truth inside plateau at exposure end while SCAN/RUNNING",
+            cadence="independent fixed-period simulated detector",
             integration="trapezoidal interpolation of simulated optical truth"))
         self.history = deque(maxlen=1000)
         self._last_packet = self._last_sample = None
@@ -47,17 +49,26 @@ class RotationSession:
         physics = self.link.latest
         if physics is not None:
             self.acquisition.record_truth(received_us, physics["optical_fast_axis_truth_deg"])
+        c = self.link.harness.controller
+        if physics is not None:
+            self.acquisition.advance(received_us, dict(mode="SIMULATED", boot_id=c.boot_id,
+                session_id=c.session_id, generation=str(c.arm_generation), motion=c.motion_request_id,
+                ref=None if c._reference is None else c._reference.epoch, kind=c.motion_kind,
+                state=c.state, mechanical_truth_deg=physics["qwp_mechanical_truth_deg"]))
         p = self.host.latest
         if p is not None and p["seq"] != self._last_packet:
             self._last_packet = p["seq"]
-            sample = self.acquisition.record(p)
+            self.acquisition.observe(p)
             if self.logger is not None:
-                self.logger.write({**p, "host_received_us": received_us}, sample)
-            if sample is not None and sample["quality"] != "VALID":
+                self.logger.write({**p, "host_received_us": received_us}, None)
+        if p is None or p["state"] != "RUNNING":
+            self._last_sample = None
+        for sample in self.acquisition.deliver(received_us):
+            if self.logger is not None:
+                self.logger.write_sample(sample)
+            if sample["quality"] != "VALID":
                 self._last_sample = None
-            if p["state"] != "RUNNING":
-                self._last_sample = None
-            if sample is not None and sample["quality"] == "VALID":
+            if sample["quality"] == "VALID":
                 self._last_sample = sample
                 self.history.append((sample["estimated_angle_deg"], sample["intensity_au"]))
                 v, true_v = sample["estimated_velocity_deg_s"], sample["optical_truth_velocity_deg_s"]
@@ -82,6 +93,13 @@ class RotationSession:
         return dict(mode="SIMULATED", reconstruction="PENDING", virtual_duration_s=self.now_us / 1e6,
             valid_samples=n, rejected_samples=self.acquisition.rejected,
             expected_exposures=self.acquisition.expected,
+            cadence_source=self.acquisition.cadence_source,
+            collection_gate="SIMULATED endpoint mechanical truth in plateau at exposure end while SCAN/RUNNING",
+            pending_exposures=len(self.acquisition.pending_exposures),
+            detector_capture_complete=(self.acquisition.expected==self.acquisition.valid+self.acquisition.rejected
+                                       and not self.acquisition.pending_exposures and self.acquisition.missing==0),
+            association_complete=(self.acquisition.rejected==0 and self.acquisition.missing==0
+                                  and not self.acquisition.pending_exposures),
             received_exposures=self.acquisition.valid+self.acquisition.rejected,
             missing_exposures=self.acquisition.missing, valid_segment_gaps=self.acquisition.gap_count,
             valid_midpoint_span_deg=self.acquisition.span_deg,
@@ -118,6 +136,9 @@ class RotationSession:
                     self.now_us += 5000
                     if not self.link.harness.controller.output.active and self.host.phase != "CANCELLING":
                         break
+            for sample in self.acquisition.deliver(self.now_us, drain=True):
+                if self.logger is not None:
+                    self.logger.write_sample(sample)
             if self.logger is not None:
                 self.logger.finish(phase=self.host.phase, detail=self.host.detail, metrics=self.metrics())
         except Exception as error:

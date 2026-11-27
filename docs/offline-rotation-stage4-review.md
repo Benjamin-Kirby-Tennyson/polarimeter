@@ -1,5 +1,9 @@
 # Stage 4 independent review follow-up
 
+Historical report at `058225c`. [Stage 5](offline-stage5.md) supersedes detector
+cadence/count semantics, analysis sidecars and target build status. The 176-test
+result and uncompiled target status below describe that earlier snapshot.
+
 2026-11-27. **SIMULATED software only.** Responds to
 [ChatGPT review of commit 2d9b921](https://github.com/Benjamin-Kirby-Tennyson/polarimeter/issues/1#issuecomment-7224388671)
 on [draft PR #2](https://github.com/Benjamin-Kirby-Tennyson/polarimeter/pull/2).

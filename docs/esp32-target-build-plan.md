@@ -1,4 +1,10 @@
-# Proposed ESP32 target plan and compile-only mock skeleton
+# ESP32 target plan: initial proposed baseline
+
+Historical plan at `058225c`. [Stage 5](offline-stage5.md) records the subsequent
+strict admission/state projection, **352 passing native checks and successful
+hosted ESP32 compile**. The NOT COMPILED status and envelope-only limitations
+below describe the initial skeleton. No target execution or physical validation
+has occurred.
 
 2026-11-27. **PROPOSED, NOT COMPILED, NOT FLASHED, NOT AS-BUILT.**
 See [canonical reported hardware](hardware-integration-context.md) and

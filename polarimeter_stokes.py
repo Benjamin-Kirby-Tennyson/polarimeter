@@ -7,7 +7,7 @@ zero and analyzer angle are mandatory. Truth fields are never read here.
 import math
 import numpy as np
 
-from polarimeter_controller import number
+from polarimeter_controller import number, decimal
 
 
 def exposure_design(start_deg, end_deg, *, zero_offset_deg, analyzer_deg):
@@ -16,6 +16,9 @@ def exposure_design(start_deg, end_deg, *, zero_offset_deg, analyzer_deg):
     This is a documented constant-speed exposure approximation to the accepted
     plateau; it does not substitute a midpoint for a finite exposure.
     """
+    for v in (start_deg,end_deg,zero_offset_deg,analyzer_deg):
+        if abs(number(v))>1e9:
+            raise ValueError('Angle exceeds numerical analysis bound of 1e9 degrees')
     lo = math.radians(number(start_deg)+number(zero_offset_deg)-number(analyzer_deg))
     hi = math.radians(number(end_deg)+zero_offset_deg-analyzer_deg)
     mid, half = (lo+hi)/2, (hi-lo)/2
@@ -25,10 +28,12 @@ def exposure_design(start_deg, end_deg, *, zero_offset_deg, analyzer_deg):
     c4,s4,s2 = average(4,math.cos),average(4,math.sin),average(2,math.sin)
     alpha = math.radians(2*analyzer_deg)
     c,s = math.cos(alpha),math.sin(alpha)
-    return np.array([.5, .25*((1+c4)*c-s4*s), .25*((1+c4)*s+s4*c), -.5*s2])
+    row = np.array([.5, .25*((1+c4)*c-s4*s), .25*((1+c4)*s+s4*c), -.5*s2])
+    if not np.isfinite(row).all():raise ValueError("Nonfinite design row")
+    return row
 
 
-def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
+def _fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
     """Bounded streaming QR least squares (blocks <=128 rows, five columns).
 
     Residual-based uncertainties assume independent equal-variance intensity
@@ -45,6 +50,7 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
     first=last=previous=None
     contiguous=0.0
     gaps=0
+    direction=None
     def reduce_rows():
         nonlocal triangular,block
         rows=np.vstack((triangular,np.asarray(block,dtype=float)))
@@ -71,14 +77,22 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
         if not math.isfinite(start) or not math.isfinite(end) or end<=start:
             raise ValueError('Invalid exposure span')
         mid=(start+end)/2
-        seq=int(row['sequence'])
+        raw_seq=row['sequence']
+        seq=decimal(str(raw_seq),positive=True) if type(raw_seq) in (int,str) else None
+        if seq is None:raise ValueError('Positive canonical exposure sequence required')
         angle=(lo+hi)/2
+        step_direction=1 if hi>lo else -1 if hi<lo else 0
+        if step_direction:
+            if direction is not None and direction!=step_direction:raise ValueError('Mixed exposure directions')
+            direction=step_direction
         if previous is not None:
-            if mid<=previous[1] or seq<=previous[0]:
+            if mid<=previous[1] or seq<=previous[0] or start<previous[3]:
                 raise ValueError('Nonmonotonic fit records')
+            if direction is not None and direction*(angle-previous[2])<0:
+                raise ValueError('Reversed angular progression')
             if seq==previous[0]+1: contiguous+=abs(angle-previous[2])
             else:gaps+=1
-        previous=seq,mid,angle
+        previous=seq,mid,angle,end
         if first is None:first=angle
         last=angle
         design=exposure_design(lo,hi,zero_offset_deg=zero_offset_deg,analyzer_deg=analyzer_deg)
@@ -87,10 +101,14 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
         if len(block)==128:reduce_rows()
     if block:reduce_rows()
     if accepted<5:raise ValueError('At least five valid exposures required')
+    if not np.isfinite(triangular).all():raise ValueError('Nonfinite QR result')
+    if abs(last-first)<90:raise ValueError('At least 90 degrees of valid midpoint span required')
     matrix,y=triangular[:,:4],triangular[:,4]
     stokes,_,rank,singular=np.linalg.lstsq(matrix,y,rcond=None)
     condition=float(singular[0]/singular[-1]) if singular[-1]>0 else None
     flags=[]
+    if gaps:flags.append("GAPS_IN_VALID_EXPOSURES")
+    if flagged:flags.append("FLAGGED_EXPOSURES_EXCLUDED")
     if rank<4 or condition is None or condition>1e8:
         raise ValueError('Rank-deficient or ill-conditioned angular coverage')
     residual=matrix@stokes-y
@@ -98,7 +116,7 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
     variance=sse/(accepted-4)
     _,sv,vt=np.linalg.svd(matrix,full_matrices=False)
     covariance=variance*(vt.T@np.diag(1/sv**2)@vt)
-    normalized=normalized_se=dop=dop_se=None
+    normalized=normalized_se=dop=dop_se=cov_normal=None
     if stokes[0]<=0:flags.append('NONPOSITIVE_S0')
     else:
         normalized=stokes[1:]/stokes[0]
@@ -106,11 +124,18 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
         cov_normal=jac@covariance@jac.T
         normalized_se=np.sqrt(np.maximum(0,np.diag(cov_normal))).tolist()
         dop=float(np.linalg.norm(normalized))
-        if dop>0:
+        near_zero=max(1e-10,3*math.sqrt(max(0,float(np.trace(cov_normal)))))
+        if dop<=near_zero:
+            flags.append('DOP_NEAR_ZERO_DELTA_INVALID')
+        elif dop>0:
             gradient=normalized/dop
             dop_se=math.sqrt(max(0,float(gradient@cov_normal@gradient)))
         if dop>1+1e-8:flags.append('NONPHYSICAL_DOP')
         normalized=normalized.tolist()
+    result_arrays=[stokes,covariance]
+    if normalized is not None:result_arrays.extend([normalized,cov_normal])
+    if not all(np.isfinite(x).all() for x in result_arrays) or not all(math.isfinite(x) for x in (sse,variance)):
+        raise ValueError('Nonfinite analysis result')
     return dict(mode='SIMULATED',analysis='ideal-qwp-exposure-averaged-stokes-v1',
         angle_source='ENCODER_INFERRED_WITH_EXPLICIT_ZERO', calibration_id=calibration_id,
         zero_offset_deg=zero_offset_deg,analyzer_deg=analyzer_deg,
@@ -118,16 +143,86 @@ def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
         acquisition_identity=identity,valid_samples=accepted,flagged_samples=flagged,
         rank=int(rank),condition=condition,valid_midpoint_span_deg=abs(last-first),
         contiguous_midpoint_coverage_deg=contiguous,valid_segment_gaps=gaps,
-        stokes=stokes.tolist(),normalized_stokes=normalized,dop=dop,
+        stokes=stokes.tolist(),stokes_units='uncalibrated incident-intensity-equivalent a.u. in ideal gain model',
+        stokes_covariance=covariance.tolist(),
+        normalized_covariance=None if cov_normal is None else cov_normal.tolist(),
+        direction=direction,normalized_stokes=normalized,dop=dop,
         residual_rms=math.sqrt(sse/accepted),stokes_standard_error=np.sqrt(np.maximum(0,np.diag(covariance))).tolist(),
         normalized_standard_error=normalized_se,dop_standard_error=dop_se,flags=flags,
         uncertainty_model='IID intensity noise only; excludes angle/clock/calibration/model systematics',
         measured_hardware=False)
 
 
+def fit_records(records, *, zero_offset_deg, analyzer_deg, calibration_id):
+    try:
+        with np.errstate(over='raise',invalid='raise',divide='raise'):
+            return _fit_records(records,zero_offset_deg=zero_offset_deg,analyzer_deg=analyzer_deg,
+                                calibration_id=calibration_id)
+    except (FloatingPointError,OverflowError,np.linalg.LinAlgError) as error:
+        raise ValueError('Numerically invalid Stokes fit: '+str(error)) from error
+
+
+def analyze_csv(path, *, zero_offset_deg, analyzer_deg, calibration_id, output=None):
+    """Analyze a completed simulated acquisition and write a separate sidecar.
+
+    Acquisition manifest is immutable. Hash before/after fitting prevents a
+    changing input from being presented as the selected completed acquisition.
+    """
+    import csv
+    import hashlib
+    import json
+    import os
+    from pathlib import Path
+    from uuid import uuid4
+    from datetime import datetime,timezone
+    path=Path(path)
+    if not path.name.endswith('-optical.csv'):
+        raise ValueError('Select a completed simulated rotation optical CSV')
+    manifest_path=path.with_name(path.name[:-len('-optical.csv')]+'-session.json')
+    manifest_bytes=manifest_path.read_bytes()
+    manifest=json.loads(manifest_bytes)
+    if (manifest.get('mode')!='SIMULATED' or manifest.get('measured_hardware') is not False
+            or manifest.get('phase')!='COMPLETED' or manifest.get('data_complete') is not True):
+        raise ValueError('Motion must be completed and acquisition data successfully finalized')
+    if manifest.get('files',{}).get('optical',path.name)!=path.name:
+        raise ValueError('Manifest optical filename mismatch')
+    def digest():
+        h=hashlib.sha256()
+        with path.open('rb') as f:
+            for chunk in iter(lambda:f.read(65536),b''):h.update(chunk)
+        return h.hexdigest()
+    before=digest()
+    recorded=manifest.get('data_sha256',{}).get('optical')
+    if recorded is not None and before!=recorded:
+        raise ValueError('Selected optical CSV differs from finalized acquisition hash')
+    with path.open(newline='',encoding='utf-8') as f:
+        result=fit_records(csv.DictReader(f),zero_offset_deg=zero_offset_deg,analyzer_deg=analyzer_deg,calibration_id=calibration_id)
+    if before!=digest() or manifest_bytes!=manifest_path.read_bytes():
+        raise ValueError('Acquisition input changed during analysis')
+    if result['acquisition_identity'][0]!=manifest.get('metadata',{}).get('experiment_id'):
+        raise ValueError('Manifest/optical experiment identity mismatch')
+    if manifest.get('metrics',{}).get('missing_exposures',0):result['flags'].append('DETECTOR_EXPOSURES_MISSING')
+    destination=Path(output) if output else path.with_name(path.stem+'-analysis-'+uuid4().hex[:12]+'.json')
+    if destination.exists():raise FileExistsError(destination)
+    if destination.resolve() in (path.resolve(),manifest_path.resolve()):raise ValueError('Analysis cannot overwrite acquisition')
+    record=dict(mode='SIMULATED',measured_hardware=False,created_utc=datetime.now(timezone.utc).isoformat(),
+        input_file=path.name,input_sha256=before,input_bytes=path.stat().st_size,
+        acquisition_manifest=manifest_path.name,manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+        motion_phase=manifest['phase'],acquisition_metrics=manifest.get('metrics',{}),
+        input_integrity='FINALIZED_HASH_MATCH' if recorded else 'LEGACY_MANIFEST_WITHOUT_HASH',analysis=result)
+    # Create exclusive destination via a hard link to a complete temporary file;
+    # never replace an existing result, CSV or immutable acquisition manifest.
+    temporary=destination.with_name(destination.name+'.'+uuid4().hex+'.tmp')
+    try:
+        with temporary.open('x',encoding='utf-8') as f:
+            json.dump(record,f,indent=2,allow_nan=False);f.flush()
+        os.link(temporary,destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return destination,record
+
 def main():
     import argparse
-    import csv
     import json
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulate',action='store_true')
@@ -135,12 +230,15 @@ def main():
     parser.add_argument('--zero-offset-deg',type=float,required=True)
     parser.add_argument('--analyzer-deg',type=float,required=True)
     parser.add_argument('--calibration-id',required=True)
+    parser.add_argument('--analysis-out',help='New JSON sidecar path; existing files are never overwritten')
     args=parser.parse_args()
     if not args.simulate:parser.error('Explicit --simulate is required')
-    with open(args.optical_csv,newline='',encoding='utf-8') as stream:
-        result=fit_records(csv.DictReader(stream),zero_offset_deg=args.zero_offset_deg,
-                           analyzer_deg=args.analyzer_deg,calibration_id=args.calibration_id)
-    print(json.dumps(result,indent=2,allow_nan=False))
+    try:
+        destination,result=analyze_csv(args.optical_csv,zero_offset_deg=args.zero_offset_deg,
+            analyzer_deg=args.analyzer_deg,calibration_id=args.calibration_id,output=args.analysis_out)
+    except (OSError,ValueError,ArithmeticError,np.linalg.LinAlgError) as error:
+        parser.error(str(error))
+    print(json.dumps(dict(sidecar=str(destination),**result),indent=2,allow_nan=False))
     return 0
 
 

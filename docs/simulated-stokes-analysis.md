@@ -47,7 +47,9 @@ identities. Rank/conditioning, total valid midpoint span, contiguous midpoint
 coverage, gaps and flagged/valid counts accompany residual RMS. Sparse data can
 have full rank; coverage diagnostics do not certify calibration or accuracy.
 
-Report normalized S1/S0, S2/S0, S3/S0, DoP and propagated standard errors. The
+Report normalized S1/S0, S2/S0, S3/S0, DoP and propagated standard errors, plus
+full Stokes/normalized covariance matrices. Near zero DoP, the conditional
+linear radial approximation is flagged and DoP standard error remains null. The
 covariance uses residual variance with n−4 degrees of freedom and an IID,
 equal-variance intensity-noise model. It excludes optical-zero, timing,
 retardance, gain and angle uncertainty. DoP>1+1e−8 receives NONPHYSICAL_DOP and
@@ -66,13 +68,20 @@ fixture calibration (not a physical measured calibration):
   --zero-offset-deg 5 --analyzer-deg 0 --calibration-id simulated-demo-zero-plus5
 ```
 
-Results print as JSON; acquisition manifests remain reconstruction PENDING
-until an analysis is explicitly run. Physical detector fitting is unsupported.
+Select a CSV from a COMPLETED simulated session whose files successfully
+finalized. The command prints JSON and writes a separate unique analysis sidecar
+beside that CSV; `--analysis-out NEW-PATH.json` selects another new result path.
+It records exact CSV/manifest SHA256 and explicit settings, verifies finalized
+CSV hashes when present, and never modifies the immutable acquisition manifest.
+Existing results are not overwritten. Acquisition manifests retain reconstruction
+PENDING; the separate sidecar records the requested analysis result. Physical
+detector fitting is unsupported. See the [Stage 5 workflow](offline-stage5.md) for
+collection gate, capture/association/analysis completeness and numerical guards.
 
 Known-state tests cover linear, circular and elliptical inputs, nonzero analyzer,
 finite exposures, phase offset, noise/gaps, deficient angular coverage and DoP>1.
 Oracle tests explicitly replace estimated angles with fixture truth outside the
 normal estimator, compare correct +5° inferred calibration and the uncalibrated
 case, and poison truth fields to verify they cannot enter the normal fit.
-See the [Stage 4 review follow-up](offline-rotation-stage4-review.md) for executed
-counts, end-to-end results and remaining limitations.
+See the [Stage 5 report](offline-stage5.md) for executed counts, end-to-end
+results, model-error fixtures and remaining limitations.
