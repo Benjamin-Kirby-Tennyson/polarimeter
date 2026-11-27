@@ -84,7 +84,7 @@ angle.reset();
         }else stationary_since.reset();
         return true;
     }
-    std::string ingest(const RawSample& sample,std::uint64_t now){
+    std::string ingest(const RawSample& sample,std::uint64_t now,std::uint64_t maximum_gap){
         if(!id(sample.continuity)||(sample.valid&&!sample.has_count)||sample.time>now
             ||(encoder&&(sample.time<encoder->time||(sample.time==encoder->time&&!(sample==*encoder))))){
             reset_samples();
@@ -102,6 +102,9 @@ cause="FEEDBACK";
 invalidate();
 stationary_since.reset();
 cause="FEEDBACK_INTEGRITY";
+            }
+            else if(sample.time-encoder->time>=maximum_gap){
+                window.clear();invalidate();stationary_since.reset();cause="FEEDBACK";
             }
             else{
                 std::int64_t delta=0;

@@ -19,7 +19,7 @@ NAMES=('retry-stop','stop-arm','arm-stop','multi-change','heartbeat-scope','prot
  'stop-same-id','same-id-stop','duplicate-disarm','multiple-hello','identity-exhaustion',
  'feedback-recovery','stale-reference','continuity-reset','count-rate','signed-delta-overflow',
  'negative-direction','velocity-window','duplicate-sample','calibration-change','external-release',
- 'travel-recovery','overflow-recovery','fault-terminal-precedence','request-exhaustion','cache-scope')
+ 'travel-recovery','overflow-recovery','fault-terminal-precedence','request-exhaustion','cache-scope','sample-gap')
 
 
 def traces():
@@ -137,6 +137,7 @@ def traces():
             for _ in range(10):tick(sample=False)
             tick([e],sample=False)
         elif name=='continuity-reset':tick(continuity_change='b'*32);rest();reference('7'*32);tick([message('CLEAR_FAULT')])
+        elif name=='sample-gap':tick(delta=50000);rest();reference('7'*32);tick([message('CLEAR_FAULT')])
         elif name=='count-rate':tick(count=1000000)
         elif name=='signed-delta-overflow':tick(count=2**63-1)
         elif name=='negative-direction':tick(count=150);tick(count=300)

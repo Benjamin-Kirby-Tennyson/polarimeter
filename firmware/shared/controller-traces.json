@@ -3261,7 +3261,7 @@
         "capacity": 8,
         "expected": {
           "state": "FAULT",
-          "generation": 5,
+          "generation": 6,
           "config_generation": 1,
           "session": "00000000000000000000000000000064",
           "challenge": "",
@@ -3270,14 +3270,15 @@
           "active": false,
           "faults": [
             "CONTROL_DEADLINE",
+            "FEEDBACK",
             "LEASE_EXPIRED"
           ],
-          "reference": "66666666666666666666666666666666",
-          "fresh": true,
-          "inside": true,
-          "stationary": true,
-          "angle": 0.0,
-          "velocity": 0.0,
+          "reference": "",
+          "fresh": false,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": null,
           "terminal": {
             "boot": "11111111111111111111111111111111",
             "session": "00000000000000000000000000000064",
@@ -6003,7 +6004,7 @@
         "capacity": 8,
         "expected": {
           "state": "FAULT",
-          "generation": 3,
+          "generation": 4,
           "config_generation": 1,
           "session": "00000000000000000000000000000064",
           "challenge": "",
@@ -6011,6 +6012,7 @@
           "end": 0,
           "active": false,
           "faults": [
+            "FEEDBACK",
             "TIME_OVERFLOW"
           ],
           "reference": "",
@@ -16959,6 +16961,664 @@
           "terminal": null,
           "outcomes": [
             "WRONG_SESSION"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "sample-gap",
+    "initial": {
+      "boot": "11111111111111111111111111111111",
+      "seed": 100,
+      "policy": {
+        "lease": 200000,
+        "request": 200000,
+        "feedback": 50000,
+        "cycle": 20000,
+        "motion": 20000000
+      },
+      "readiness": {
+        "stationary_band": 0.1,
+        "stationary_dwell": 10000,
+        "max_count_rate": 5000000.0,
+        "velocity_window": 20000
+      }
+    },
+    "steps": [
+      {
+        "now": 0,
+        "frames": [
+          "5157503120313339207b22626f6f745f6964223a6e756c6c2c22686f73745f6e6f6e6365223a223434343434343434343434343434343434343434343434343434343434343434222c226d6f6465223a2253494d554c41544544222c22726571756573745f6964223a2231222c2273657373696f6e5f6964223a6e756c6c2c2274797065223a2248454c4c4f222c2276223a317d2035453833324333370a"
+        ],
+        "sample": {
+          "time": 0,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 1,
+          "config_generation": 0,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": false,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": null,
+          "terminal": null,
+          "outcomes": [
+            "HELLO_REPLY"
+          ]
+        }
+      },
+      {
+        "now": 5000,
+        "frames": [],
+        "sample": {
+          "time": 5000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 1,
+          "config_generation": 0,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": false,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": null,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 10000,
+        "frames": [],
+        "sample": {
+          "time": 10000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 1,
+          "config_generation": 0,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 15000,
+        "frames": [],
+        "sample": {
+          "time": 15000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 1,
+          "config_generation": 0,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 20000,
+        "frames": [],
+        "sample": {
+          "time": 20000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 1,
+          "config_generation": 0,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 25000,
+        "frames": [
+          "5157503120343332207b22626f6f745f6964223a223131313131313131313131313131313131313131313131313131313131313131222c22636f6e666967223a7b2263616c6962726174696f6e5f6964223a223333333333333333333333333333333333333333333333333333333333333333222c22636f6e6669675f6964223a223232323232323232323232323232323232323232323232323232323232323232222c22636f756e74735f7065725f7177705f726576223a35343030302c226d61785f616363656c65726174696f6e5f6465675f7332223a3130302c226d61785f616e676c655f646567223a3732302c226d61785f73706565645f6465675f73223a36302c226d696e5f616e676c655f646567223a2d3336307d2c22636f6e6669675f67656e65726174696f6e223a2230222c226d6f6465223a2253494d554c41544544222c226e6f745f61667465725f7573223a22313730303030222c22726571756573745f6964223a2232222c2273657373696f6e5f6964223a223030303030303030303030303030303030303030303030303030303030303634222c2274797065223a22434f4e464947555245222c2276223a317d2044323339444537440a"
+        ],
+        "sample": {
+          "time": 25000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "CONFIGURED",
+          "generation": 2,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": [
+            "ACCEPTED"
+          ]
+        }
+      },
+      {
+        "reference": {
+          "epoch": "66666666666666666666666666666666",
+          "calibration": "33333333333333333333333333333333",
+          "count_zero": 0,
+          "angle_zero": 0,
+          "direction": 1
+        },
+        "accepted": true,
+        "expected": {
+          "state": "CONFIGURED",
+          "generation": 2,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "66666666666666666666666666666666",
+          "fresh": true,
+          "inside": true,
+          "stationary": true,
+          "angle": 0.0,
+          "velocity": 0.0,
+          "terminal": null
+        }
+      },
+      {
+        "now": 30000,
+        "frames": [
+          "5157503120313536207b22626f6f745f6964223a223131313131313131313131313131313131313131313131313131313131313131222c226d6f6465223a2253494d554c41544544222c22726571756573745f6964223a2233222c2273657373696f6e5f6964223a223030303030303030303030303030303030303030303030303030303030303634222c2274797065223a224745545f535441545553222c2276223a317d2031453636373833300a"
+        ],
+        "sample": {
+          "time": 30000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "CONFIGURED",
+          "generation": 2,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "00000000000000000000000000000065",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "66666666666666666666666666666666",
+          "fresh": true,
+          "inside": true,
+          "stationary": true,
+          "angle": 0.0,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": [
+            "ACCEPTED"
+          ]
+        }
+      },
+      {
+        "now": 80000,
+        "frames": [],
+        "sample": {
+          "time": 80000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": false,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": null,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 85000,
+        "frames": [],
+        "sample": {
+          "time": 85000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 90000,
+        "frames": [],
+        "sample": {
+          "time": 90000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": false,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 95000,
+        "frames": [],
+        "sample": {
+          "time": 95000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 100000,
+        "frames": [],
+        "sample": {
+          "time": 100000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 105000,
+        "frames": [],
+        "sample": {
+          "time": 105000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 110000,
+        "frames": [],
+        "sample": {
+          "time": 110000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 115000,
+        "frames": [],
+        "sample": {
+          "time": 115000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "now": 120000,
+        "frames": [],
+        "sample": {
+          "time": 120000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "",
+          "fresh": true,
+          "inside": false,
+          "stationary": true,
+          "angle": null,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": []
+        }
+      },
+      {
+        "reference": {
+          "epoch": "77777777777777777777777777777777",
+          "calibration": "33333333333333333333333333333333",
+          "count_zero": 0,
+          "angle_zero": 0,
+          "direction": 1
+        },
+        "accepted": true,
+        "expected": {
+          "state": "FAULT",
+          "generation": 3,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [
+            "FEEDBACK"
+          ],
+          "reference": "77777777777777777777777777777777",
+          "fresh": true,
+          "inside": true,
+          "stationary": true,
+          "angle": 0.0,
+          "velocity": 0.0,
+          "terminal": null
+        }
+      },
+      {
+        "now": 125000,
+        "frames": [
+          "5157503120313831207b22626f6f745f6964223a223131313131313131313131313131313131313131313131313131313131313131222c226d6f6465223a2253494d554c41544544222c226e6f745f61667465725f7573223a22323730303030222c22726571756573745f6964223a2234222c2273657373696f6e5f6964223a223030303030303030303030303030303030303030303030303030303030303634222c2274797065223a22434c4541525f4641554c54222c2276223a317d2043363642434330300a"
+        ],
+        "sample": {
+          "time": 125000,
+          "count": 0,
+          "continuity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        "external": false,
+        "complete_fixture": false,
+        "capacity": 8,
+        "expected": {
+          "state": "DISARMED",
+          "generation": 4,
+          "config_generation": 1,
+          "session": "00000000000000000000000000000064",
+          "challenge": "",
+          "lease": 0,
+          "end": 0,
+          "active": false,
+          "faults": [],
+          "reference": "77777777777777777777777777777777",
+          "fresh": true,
+          "inside": true,
+          "stationary": true,
+          "angle": 0.0,
+          "velocity": 0.0,
+          "terminal": null,
+          "outcomes": [
+            "ACCEPTED"
           ]
         }
       }

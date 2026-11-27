@@ -54,6 +54,7 @@ inline constexpr std::uint8_t trace_frame_45[]={81,87,80,49,32,49,53,54,32,123,3
 inline constexpr std::uint8_t trace_frame_46[]={81,87,80,49,32,49,56,49,32,123,34,98,111,111,116,95,105,100,34,58,34,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,110,111,116,95,97,102,116,101,114,95,117,115,34,58,34,50,51,53,48,48,48,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,55,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,34,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,54,54,34,44,34,116,121,112,101,34,58,34,67,76,69,65,82,95,70,65,85,76,84,34,44,34,118,34,58,49,125,32,49,65,69,65,70,66,70,69,10};
 inline constexpr std::uint8_t trace_frame_47[]={81,87,80,49,32,49,53,54,32,123,34,98,111,111,116,95,105,100,34,58,34,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,53,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,34,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,54,52,34,44,34,116,121,112,101,34,58,34,71,69,84,95,83,84,65,84,85,83,34,44,34,118,34,58,49,125,32,70,55,57,54,66,48,65,70,10};
 inline constexpr std::uint8_t trace_frame_48[]={81,87,80,49,32,49,52,48,32,123,34,98,111,111,116,95,105,100,34,58,110,117,108,108,44,34,104,111,115,116,95,110,111,110,99,101,34,58,34,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,49,53,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,110,117,108,108,44,34,116,121,112,101,34,58,34,72,69,76,76,79,34,44,34,118,34,58,49,125,32,65,66,67,55,57,52,51,54,10};
+inline constexpr std::uint8_t trace_frame_49[]={81,87,80,49,32,49,56,49,32,123,34,98,111,111,116,95,105,100,34,58,34,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,110,111,116,95,97,102,116,101,114,95,117,115,34,58,34,50,55,48,48,48,48,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,52,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,34,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,54,52,34,44,34,116,121,112,101,34,58,34,67,76,69,65,82,95,70,65,85,76,84,34,44,34,118,34,58,49,125,32,67,54,54,66,67,67,48,48,10};
 inline TraceResult controller_traces(){TraceResult summary;
 {Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
 {
@@ -652,7 +653,7 @@ if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.firs
 {
 std::vector<Command> batch;std::size_t errors=0;
 c.cycle(235000ULL,batch,std::optional<RawSample>{RawSample{235000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
-const Expected expected{"FAULT",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"CONTROL_DEADLINE","LEASE_EXPIRED"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,235000ULL}};
+const Expected expected{"FAULT",6ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"CONTROL_DEADLINE","FEEDBACK","LEASE_EXPIRED"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,235000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:10";}
 }
 }
@@ -1155,7 +1156,7 @@ if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.firs
 {
 std::vector<Command> batch;std::size_t errors=0;
 c.cycle(18446744073709551605ULL,batch,std::optional<RawSample>{RawSample{18446744073709551605ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
-const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TIME_OVERFLOW"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
+const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK","TIME_OVERFLOW"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:8";}
 }
 }
@@ -3154,6 +3155,124 @@ std::vector<Command> batch;std::size_t errors=0;
 c.cycle(100000ULL,batch,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
 const Expected expected{"DISARMED",3ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"WRONG_SESSION"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:21";}
+}
+}
+{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{
+std::vector<Command> batch;std::size_t errors=0;
+{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
+c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:0";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:1";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:2";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:3";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:4";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
+c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:5";}
+}
+{
+const bool accepted=c.establish_reference(Reference{"66666666666666666666666666666666","33333333333333333333333333333333",0LL,0,1});
+const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},c.outcomes,"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
+if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:6";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
+c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:7";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:8";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:9";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:10";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(95000ULL,batch,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:11";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(100000ULL,batch,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:12";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(105000ULL,batch,std::optional<RawSample>{RawSample{105000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:13";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(110000ULL,batch,std::optional<RawSample>{RawSample{110000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:14";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(115000ULL,batch,std::optional<RawSample>{RawSample{115000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:15";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+c.cycle(120000ULL,batch,std::optional<RawSample>{RawSample{120000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:16";}
+}
+{
+const bool accepted=c.establish_reference(Reference{"77777777777777777777777777777777","33333333333333333333333333333333",0LL,0,1});
+const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},c.outcomes,"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
+if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:17";}
+}
+{
+std::vector<Command> batch;std::size_t errors=0;
+{Command m;if(!decode(trace_frame_49,sizeof(trace_frame_49),m))++errors;else batch.push_back(m);}
+c.cycle(125000ULL,batch,std::optional<RawSample>{RawSample{125000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+const Expected expected{"DISARMED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
+if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:18";}
 }
 }
 return summary;}

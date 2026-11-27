@@ -329,6 +329,12 @@ class OfflineController:
                 self._invalidate_reference()
                 self._stationary_since = None
                 cause = "FEEDBACK_INTEGRITY"
+            elif sample.sample_us - old.sample_us >= self.timing.feedback_us:
+                # A newly fresh sample cannot erase an unobserved encoder gap.
+                self._encoder_window.clear()
+                self._invalidate_reference()
+                self._stationary_since = None
+                cause = "FEEDBACK"
             else:
                 dt = (sample.sample_us - old.sample_us) / 1e6
                 delta = sample.count - old.count

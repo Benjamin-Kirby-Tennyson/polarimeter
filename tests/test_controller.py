@@ -293,7 +293,11 @@ class ControllerTests(unittest.TestCase):
     def test_challenge_expiry_stop_and_configuration_generations(self):
         self.configure()
         challenge = self.controller.challenge[0]
-        self.now = 102
+        # Keep coherent samples flowing: isolate challenge expiry from the
+        # independent encoder-gap fault at the same timestamp boundary.
+        while self.now < 102:
+            self.now = min(102, self.now + 10)
+            self.run_cycle()
         arm = self.message("ARM", config_id=self.config["config_id"], challenge=challenge)
         self.assertEqual(self.run_cycle(arm)[0]["outcome"], "REJECTED")
         self.assertIsNone(self.controller.challenge)
@@ -484,8 +488,15 @@ class ControllerTests(unittest.TestCase):
         self.now += 1
         self.run_cycle(self.message("GET_STATUS"))
         self.assertIsNone(self.controller.challenge)
+        self.assertIn("FEEDBACK", self.controller.faults)
+        self.assertIsNone(self.controller._reference)
+        self.now += 1
+        self.run_cycle()  # Rebuild coherent velocity/stationary evidence.
         self.reference()
         self.assertNotEqual(self.controller._reference.epoch, old_epoch)
+        self.assertEqual(self.run_cycle(self.message("CLEAR_FAULT"))[0]["outcome"], "ACCEPTED")
+        self.assertEqual(self.run_cycle(self.message("CONFIGURE", config_generation=str(self.controller.config_generation),
+            config=self.config))[0]["outcome"], "ACCEPTED")
         self.run_cycle(self.message("GET_STATUS"))
         self.assertIsNotNone(self.controller.challenge)
 

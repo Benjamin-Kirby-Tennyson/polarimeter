@@ -34,8 +34,8 @@ class SharedVectorTests(unittest.TestCase):
         data=json.loads((ROOT/'firmware/shared/controller-traces.json').read_text())
         self.assertEqual(data,traces())
         self.assertEqual((ROOT/'firmware/shared/controller-traces.hpp').read_text(),cpp(data))
-        self.assertEqual(len(data),38)
-        self.assertEqual(sum(len(t['steps']) for t in data),472)
+        self.assertEqual(len(data),39)
+        self.assertEqual(sum(len(t['steps']) for t in data),491)
 
     def test_no_derived_state_injection_in_reference_traces(self):
         data=traces()

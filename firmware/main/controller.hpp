@@ -248,7 +248,7 @@ has_time=true;
         std::set<std::string> causes;
         if(external)causes.insert("EXTERNAL_INHIBIT");
         if(armed&&!cycle_healthy)causes.insert("CONTROL_DEADLINE");
-        if(sample){const auto cause=encoder.ingest(*sample,now);
+        if(sample){const auto cause=encoder.ingest(*sample,now,policy.feedback);
 if(!cause.empty())causes.insert(cause);
         }
         if(encoder.reference&&!fresh(true)){invalidate_reference();
