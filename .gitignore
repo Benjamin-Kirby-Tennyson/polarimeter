@@ -36,6 +36,16 @@ outputs/
 results/
 plots/
 
+# Generated plots, screenshots and screen recordings
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.webm
+
 # Temporary files, editor backups and runtime logs
 *.tmp
 *.temp
@@ -53,12 +63,26 @@ codex-write-test*.txt
 !.env.example
 !.env.sample
 secrets/
-credentials*.json
+credentials*
+.credentials/
+token.json
+tokens.json
+.netrc
+.pypirc
+.git-credentials
 *service-account*.json
 *.pem
 *.key
+*.p12
+*.pfx
+*.keystore
 id_rsa
 id_ed25519
 .ssh/
 .aws/
 .codex/
+
+# Future ESP-IDF generated files; source/config defaults and fixtures are versioned
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/

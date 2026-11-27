@@ -1,0 +1,35 @@
+{
+  "mode": "COMPILE_ONLY_MOCK",
+  "date": "2026-11-27",
+  "source_commit": "4db77750644aaf8e7a18d7205baca96256fbcd73",
+  "run_url": "https://github.com/Benjamin-Kirby-Tennyson/polarimeter/actions/runs/46076102923",
+  "native": {
+    "status": "PASSED",
+    "checks_passed": 352,
+    "checks_failed": 0,
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "artifact_id": 15235245522,
+    "artifact_sha256": "f0d69ac196c0a31c7e98e1cda24c327bfc21e56c496dd268c8f87d7eef31707d"
+  },
+  "esp32": {
+    "compile_status": "PASSED",
+    "target_execution": "NOT_PERFORMED",
+    "physical_validation": "NOT_PERFORMED",
+    "artifact_id": 15235720498,
+    "artifact_sha256": "35e4121fdf39e2c297370d1d2ef83dab67ce843dfb32fa35d1bb96b4a20a54f9",
+    "evidence": {
+      "sdk-commit.txt": "1b459d9c4950395dec12ce19256c73f9a41e306f\n",
+      "sdk-version.txt": "ESP-IDF v5.3.4\n",
+      "target-SHA256SUMS": "2e2995951f96fcf3bdda2e25a933e87697a38b1f338401c277cf05fb66e90e3c  artifacts/qwp_compile_only_mock.bin\nd44d89a015e4425f3b0531e66732140cd23966401fa73266deefb723b3d881dd  artifacts/qwp_compile_only_mock.elf\necb2f41d4212b2cd6404e5c4e616a1704959bece31ef33a3cc3818f60b146729  artifacts/qwp_compile_only_mock.map\n",
+      "target-compiler.txt": "xtensa-esp-elf-g++ (crosstool-NG esp-13.2.0_20240530) 13.2.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "target-size.txt": "Executing action: size\nRunning ninja in directory /__w/polarimeter/polarimeter/firmware/build\nExecuting \"ninja all\"...\n[1/4] cd /__w/polarimeter/polarimeter/firmware/build/esp-idf/esptool_py && /opt/esp/python_env/idf5.3_py3.10_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /__w/polarimeter/polarimeter/firmware/build/partition_table/partition-table.bin /__w/polarimeter/polarimeter/firmware/build/qwp_compile_only_mock.bin\nqwp_compile_only_mock.bin binary size 0x3e5b0 bytes. Smallest app partition is 0x100000 bytes. 0xc1a50 bytes (76%) free.\n[2/4] Performing build step for 'bootloader'\n[1/1] cd /__w/polarimeter/polarimeter/firmware/build/bootloader/esp-idf/esptool_py && /opt/esp/python_env/idf5.3_py3.10_env/bin/python /opt/esp/idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /__w/polarimeter/polarimeter/firmware/build/bootloader/bootloader.bin\nBootloader binary size 0x68b0 bytes. 0x750 bytes (7%) free.\n[3/4] No install step for 'bootloader'\n[4/4] Completed 'bootloader'\nRunning ninja in directory /__w/polarimeter/polarimeter/firmware/build\nExecuting \"ninja size\"...\n[0/1] cd /__w/polarimeter/polarimeter/firmware/build && /opt/esp/tools/cmake/3.30.2/bin/cmake -D \"IDF_SIZE_TOOL=/opt/esp/python_env/idf5.3_py3.10_env/bin/python;-m;esp_idf_size\" -D MAP_FILE=/__w/polarimeter/polarimeter/firmware/build/qwp_compile_only_mock.map -D OUTPUT_JSON= -P /opt/esp/idf/tools/cmake/run_size_tool.cmake\n                             Memory Type Usage Summary                              \n\u250f\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2513\n\u2503 Memory Type/Section   \u2503 Used [bytes] \u2503 Used [%] \u2503 Remain [bytes] \u2503 Total [bytes] \u2503\n\u2521\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2529\n\u2502 Flash Code            \u2502       147446 \u2502          \u2502                \u2502               \u2502\n\u2502    .text              \u2502       147446 \u2502          \u2502                \u2502               \u2502\n\u2502 IRAM                  \u2502        51274 \u2502    39.12 \u2502          79798 \u2502        131072 \u2502\n\u2502    .text              \u2502        50247 \u2502    38.34 \u2502                \u2502               \u2502\n\u2502    .vectors           \u2502         1027 \u2502     0.78 \u2502                \u2502               \u2502\n\u2502 Flash Data            \u2502        47756 \u2502          \u2502                \u2502               \u2502\n\u2502    .rodata            \u2502        47500 \u2502          \u2502                \u2502               \u2502\n\u2502    .appdesc           \u2502          256 \u2502          \u2502                \u2502               \u2502\n\u2502 DRAM                  \u2502        11080 \u2502     6.13 \u2502         169656 \u2502        180736 \u2502\n\u2502    .data              \u2502         8816 \u2502     4.88 \u2502                \u2502               \u2502\n\u2502    .bss               \u2502         2264 \u2502     1.25 \u2502                \u2502               \u2502\n\u2502 RTC SLOW              \u2502           24 \u2502     0.29 \u2502           8168 \u2502          8192 \u2502\n\u2502    .rtc_slow_reserved \u2502           24 \u2502     0.29 \u2502                \u2502               \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nTotal image size: 255292 bytes (.bin may be padded larger)\nNote: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.\n"
+    }
+  },
+  "flashed": false,
+  "ports_opened": false,
+  "gpio_allocated": false
+}

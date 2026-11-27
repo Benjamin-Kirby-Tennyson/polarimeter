@@ -1,0 +1,85 @@
+name: Offline target conformance
+on:
+  push:
+    branches: [codex/offline-rotation-lab-20261127]
+    paths:
+      - 'firmware/**'
+      - 'polarimeter_protocol.py'
+      - 'polarimeter_controller.py'
+      - '.github/workflows/offline-target.yml'
+      - 'tests/test_target_contract.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: offline-target-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Verify shared fixtures and compile native C++17 mock
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          g++ --version | tee artifacts/native-compiler.txt
+          python3 -B firmware/tools/generate_vectors.py
+          python3 -B firmware/tools/generate_traces.py
+          git diff --exit-code -- firmware/shared
+          g++ -std=c++17 -Wall -Wextra -Werror -pedantic -g -fsanitize=address,undefined firmware/tools/native_conformance.cpp -o artifacts/native-conformance 2>&1 | tee artifacts/native-build.log
+          artifacts/native-conformance 2>&1 | tee artifacts/native-test.log
+          sha256sum artifacts/native-conformance > artifacts/native-SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: native-conformance-${{ github.sha }}
+          path: artifacts/
+          retention-days: 7
+  esp32-compile-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    container:
+      # espressif/idf:v5.3.4 multi-platform manifest, verified from Docker Hub.
+      image: espressif/idf@sha256:045ae2f56f561c0a82d1db14ef0fb9a94e952eaf560d812d9c19c6fca936c211
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Compile inhibited classic-ESP32 mock only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          . "$IDF_PATH/export.sh"
+          idf.py --version | tee artifacts/sdk-version.txt
+          git -C "$IDF_PATH" rev-parse HEAD | tee artifacts/sdk-commit.txt
+          xtensa-esp32-elf-g++ --version | tee artifacts/target-compiler.txt
+          idf.py -C firmware -DIDF_TARGET=esp32 build 2>&1 | tee artifacts/target-build.log
+          idf.py -C firmware size 2>&1 | tee artifacts/target-size.txt
+          cp firmware/build/*.map artifacts/
+          cp firmware/build/*.bin artifacts/
+          cp firmware/build/*.elf artifacts/
+          cp firmware/sdkconfig artifacts/sdkconfig
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          rows=[]
+          for index,p in enumerate(Path('firmware/build').rglob('*.su')):
+              name=f'stack-{index}-{p.name}'
+              shutil.copyfile(p,Path('artifacts')/name)
+              rows.append(str(p)+': '+p.read_text())
+          Path('artifacts/target-stack-usage.txt').write_text('\n'.join(rows))
+          if not rows:raise SystemExit('Missing compiler stack-usage evidence')
+          PY
+          sha256sum artifacts/*.bin artifacts/*.elf artifacts/*.map > artifacts/target-SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: esp32-compile-only-${{ github.sha }}
+          path: artifacts/
+          retention-days: 7

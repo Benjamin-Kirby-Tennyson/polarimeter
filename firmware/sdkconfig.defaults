@@ -1,0 +1,6 @@
+# PROPOSED compile-only mock image. No serial console or physical output backend.
+CONFIG_ESP_CONSOLE_NONE=y
+CONFIG_ESP_CONSOLE_UART_DEFAULT=n
+CONFIG_ESP_CONSOLE_UART_CUSTOM=n
+# Bounded JSON arena / mock trace self-tests; actual map/stack use is reported by CI.
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=32768
