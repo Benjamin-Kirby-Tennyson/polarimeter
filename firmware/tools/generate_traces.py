@@ -177,7 +177,7 @@ def cpp(data):
         for step in trace['steps']:
             for frame in step.get('frames',[]):
                 if frame!='BAD' and frame not in frame_map:frame_map[frame]=len(frame_map)
-    lines=['#pragma once','#include "../main/controller.hpp"','namespace qwp {',
+    lines=['#pragma once','#include "../main/endpoint.hpp"','namespace qwp {',
         'struct TraceResult {unsigned passed=0,failed=0;const char* first_failure=nullptr;};',
         'struct Expected {std::string state;std::uint64_t generation,config_generation;std::string session,challenge;std::uint64_t lease,end;bool active;std::set<std::string> faults;std::vector<std::string> outcomes;std::string reference;bool fresh,inside,stationary;std::optional<double> angle,velocity;Terminal terminal;};',
         'inline bool close_value(std::optional<double> a,std::optional<double> b){return a.has_value()==b.has_value()&&(!a||(std::isfinite(*a)&&std::abs(*a-*b)<=1e-7*std::max(1.0,std::abs(*b))));}',
@@ -187,7 +187,7 @@ def cpp(data):
     lines+=['inline TraceResult controller_traces(){TraceResult summary;']
     for trace in data:
         initial=trace['initial'];p=initial['policy'];r=initial['readiness']
-        lines+=['{Controller c(Policy{'+','.join(u(x) for x in p.values())+'},EncoderPolicy{'+','.join([str(r['stationary_band']),str(r['max_count_rate']),u(r['stationary_dwell']),u(r['velocity_window'])])+'},'+q(initial['boot'])+','+u(initial['seed'])+');']
+        lines+=['{MemoryEndpoint endpoint(Policy{'+','.join(u(x) for x in p.values())+'},EncoderPolicy{'+','.join([str(r['stationary_band']),str(r['max_count_rate']),u(r['stationary_dwell']),u(r['velocity_window'])])+'},'+q(initial['boot'])+','+u(initial['seed'])+',50000);auto& c=endpoint.controller;']
         for index,step in enumerate(trace['steps']):
             lines+=['{']
             reference_accepted=''
@@ -196,15 +196,15 @@ def cpp(data):
                 lines+=['const bool accepted=c.establish_reference(Reference{'+','.join([q(r['epoch']),q(r['calibration']),i64(r['count_zero']),str(r['angle_zero']),str(r['direction'])])+'});']
                 reference_accepted='accepted=='+str(step['accepted']).lower()+' && '
             else:
-                lines+=['std::vector<Command> batch;std::size_t errors=0;']
+                lines+=['// Framed bytes traverse the real bounded parser/event endpoint.']
                 for frame in step['frames']:
-                    if frame=='BAD':lines+=['++errors;']
+                    if frame=='BAD':lines+=['{const std::uint8_t bad[]={120,10};endpoint.feed(bad,sizeof(bad),'+u(step['now'])+');}']
                     else:
                         name='trace_frame_'+str(frame_map[frame])
-                        lines+=['{Command m;if(!decode('+name+',sizeof('+name+'),m))++errors;else batch.push_back(m);}']
+                        lines+=['{for(std::size_t pos=0;pos<sizeof('+name+');){const auto n=std::min(chunk_max,sizeof('+name+')-pos);endpoint.feed('+name+'+pos,n,'+u(step['now'])+');pos+=n;}}']
                 s=step['sample']
                 sample='std::nullopt' if s is None else 'std::optional<RawSample>{RawSample{'+','.join([u(s['time']),i64(s['count'] or 0),q(s['continuity']),str(s['valid']).lower(),str(s['count'] is not None).lower()])+'}}'
-                lines+=['c.cycle('+','.join([u(step['now']),'batch',sample,'errors>0',str(step['external']).lower(),str(step['capacity']),'false','errors'])+');']
+                lines+=['endpoint.cycle('+','.join([u(step['now']),sample,str(step['external']).lower(),str(step['capacity'])])+');']
                 if step['complete_fixture']:lines+=['c.complete_fixture_only('+u(step['now'])+');']
             e=step['expected']
             values=[q(e['state']),u(e['generation']),u(e['config_generation']),q(e['session']),q(e['challenge']),u(e['lease']),u(e['end']),str(e['active']).lower(),

@@ -1,5 +1,5 @@
 #pragma once
-#include "../main/controller.hpp"
+#include "../main/endpoint.hpp"
 namespace qwp {
 struct TraceResult {unsigned passed=0,failed=0;const char* first_failure=nullptr;};
 struct Expected {std::string state;std::uint64_t generation,config_generation;std::string session,challenge;std::uint64_t lease,end;bool active;std::set<std::string> faults;std::vector<std::string> outcomes;std::string reference;bool fresh,inside,stationary;std::optional<double> angle,velocity;Terminal terminal;};
@@ -56,42 +56,42 @@ inline constexpr std::uint8_t trace_frame_47[]={81,87,80,49,32,49,53,54,32,123,3
 inline constexpr std::uint8_t trace_frame_48[]={81,87,80,49,32,49,52,48,32,123,34,98,111,111,116,95,105,100,34,58,110,117,108,108,44,34,104,111,115,116,95,110,111,110,99,101,34,58,34,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,49,53,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,110,117,108,108,44,34,116,121,112,101,34,58,34,72,69,76,76,79,34,44,34,118,34,58,49,125,32,65,66,67,55,57,52,51,54,10};
 inline constexpr std::uint8_t trace_frame_49[]={81,87,80,49,32,49,56,49,32,123,34,98,111,111,116,95,105,100,34,58,34,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,34,44,34,109,111,100,101,34,58,34,83,73,77,85,76,65,84,69,68,34,44,34,110,111,116,95,97,102,116,101,114,95,117,115,34,58,34,50,55,48,48,48,48,34,44,34,114,101,113,117,101,115,116,95,105,100,34,58,34,52,34,44,34,115,101,115,115,105,111,110,95,105,100,34,58,34,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,54,52,34,44,34,116,121,112,101,34,58,34,67,76,69,65,82,95,70,65,85,76,84,34,44,34,118,34,58,49,125,32,67,54,54,66,67,67,48,48,10};
 inline TraceResult controller_traces(){TraceResult summary;
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:5";}
 }
@@ -101,91 +101,91 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"RETRY:ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_6,sizeof(trace_frame_6),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_6);){const auto n=std::min(chunk_max,sizeof(trace_frame_6)-pos);endpoint.feed(trace_frame_6+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","CANCELLED",3ULL,5ULL,55000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_7,sizeof(trace_frame_7),m))++errors;else batch.push_back(m);}
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_7);){const auto n=std::min(chunk_max,sizeof(trace_frame_7)-pos);endpoint.feed(trace_frame_7+pos,n,60000ULL);pos+=n;}}
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",4ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000066",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","CANCELLED",3ULL,5ULL,55000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="retry-stop:13";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:5";}
 }
@@ -195,57 +195,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_8,sizeof(trace_frame_8),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_8);){const auto n=std::min(chunk_max,sizeof(trace_frame_8)-pos);endpoint.feed(trace_frame_8+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"INHIBIT_REQUESTED","BATCH_INHIBITED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-arm:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:5";}
 }
@@ -255,57 +255,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_8,sizeof(trace_frame_8),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_8);){const auto n=std::min(chunk_max,sizeof(trace_frame_8)-pos);endpoint.feed(trace_frame_8+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"BATCH_INHIBITED","INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="arm-stop:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:5";}
 }
@@ -315,57 +315,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_9,sizeof(trace_frame_9),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_9);){const auto n=std::min(chunk_max,sizeof(trace_frame_9)-pos);endpoint.feed(trace_frame_9+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"MULTIPLE_STATE_CHANGES","MULTIPLE_STATE_CHANGES"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multi-change:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:5";}
 }
@@ -375,91 +375,91 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_10,sizeof(trace_frame_10),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_10);){const auto n=std::min(chunk_max,sizeof(trace_frame_10)-pos);endpoint.feed(trace_frame_10+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"WRONG_ARM_OR_SESSION"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_11,sizeof(trace_frame_11),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_11);){const auto n=std::min(chunk_max,sizeof(trace_frame_11)-pos);endpoint.feed(trace_frame_11+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",190000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_11,sizeof(trace_frame_11),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_11);){const auto n=std::min(chunk_max,sizeof(trace_frame_11)-pos);endpoint.feed(trace_frame_11+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",190000ULL,1040000ULL,true,{},{"STALE_HEARTBEAT"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_12,sizeof(trace_frame_12),m))++errors;else batch.push_back(m);}
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_12);){const auto n=std::min(chunk_max,sizeof(trace_frame_12)-pos);endpoint.feed(trace_frame_12+pos,n,60000ULL);pos+=n;}}
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","CANCELLED",3ULL,5ULL,60000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="heartbeat-scope:13";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:5";}
 }
@@ -469,85 +469,85 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-++errors;
-{Command m;if(!decode(trace_frame_13,sizeof(trace_frame_13),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{const std::uint8_t bad[]={120,10};endpoint.feed(bad,sizeof(bad),45000ULL);}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_13);){const auto n=std::min(chunk_max,sizeof(trace_frame_13)-pos);endpoint.feed(trace_frame_13+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"PROTOCOL"},{"INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_14,sizeof(trace_frame_14),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_14);){const auto n=std::min(chunk_max,sizeof(trace_frame_14)-pos);endpoint.feed(trace_frame_14+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"PROTOCOL"},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_15,sizeof(trace_frame_15),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_15);){const auto n=std::min(chunk_max,sizeof(trace_frame_15)-pos);endpoint.feed(trace_frame_15+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",6ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="protocol-recovery:12";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:5";}
 }
@@ -557,70 +557,70 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_16,sizeof(trace_frame_16),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_16);){const auto n=std::min(chunk_max,sizeof(trace_frame_16)-pos);endpoint.feed(trace_frame_16+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"ID_CONFLICT"},{"BATCH_INHIBITED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="id-conflict:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:5";}
 }
@@ -630,69 +630,69 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(235000ULL,batch,std::optional<RawSample>{RawSample{235000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(235000ULL,std::optional<RawSample>{RawSample{235000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",6ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"CONTROL_DEADLINE","FEEDBACK","LEASE_EXPIRED"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,235000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="lease-boundary:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:5";}
 }
@@ -702,69 +702,69 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_17,sizeof(trace_frame_17),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_17);){const auto n=std::min(chunk_max,sizeof(trace_frame_17)-pos);endpoint.feed(trace_frame_17+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,50000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"MOTION_DURATION"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,50000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duration-boundary:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:5";}
 }
@@ -774,63 +774,63 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_18,sizeof(trace_frame_18),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_18);){const auto n=std::min(chunk_max,sizeof(trace_frame_18)-pos);endpoint.feed(trace_frame_18+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",3ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_19,sizeof(trace_frame_19),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_19);){const auto n=std::min(chunk_max,sizeof(trace_frame_19)-pos);endpoint.feed(trace_frame_19+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",3ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"WRONG_SESSION"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-session:9";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:5";}
 }
@@ -840,91 +840,91 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_20,sizeof(trace_frame_20),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_20);){const auto n=std::min(chunk_max,sizeof(trace_frame_20)-pos);endpoint.feed(trace_frame_20+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 c.complete_fixture_only(45000ULL);
 const Expected expected{"STOPPED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","COMPLETED",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",4ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000066",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","COMPLETED",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_6,sizeof(trace_frame_6),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_6);){const auto n=std::min(chunk_max,sizeof(trace_frame_6)-pos);endpoint.feed(trace_frame_6+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","COMPLETED",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_7,sizeof(trace_frame_7),m))++errors;else batch.push_back(m);}
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_7);){const auto n=std::min(chunk_max,sizeof(trace_frame_7)-pos);endpoint.feed(trace_frame_7+pos,n,60000ULL);pos+=n;}}
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",5ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000067",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","COMPLETED",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="completion-recovery:13";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:5";}
 }
@@ -934,55 +934,55 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(29999ULL,batch,std::optional<RawSample>{RawSample{29999ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(29999ULL,std::optional<RawSample>{RawSample{29999ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"CLOCK"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="backward-clock:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:5";}
 }
@@ -992,78 +992,78 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_14,sizeof(trace_frame_14),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_7,sizeof(trace_frame_7),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_21,sizeof(trace_frame_21),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_22,sizeof(trace_frame_22),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_23,sizeof(trace_frame_23),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_24,sizeof(trace_frame_24),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_25,sizeof(trace_frame_25),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_26,sizeof(trace_frame_26),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_14);){const auto n=std::min(chunk_max,sizeof(trace_frame_14)-pos);endpoint.feed(trace_frame_14+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_7);){const auto n=std::min(chunk_max,sizeof(trace_frame_7)-pos);endpoint.feed(trace_frame_7+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_21);){const auto n=std::min(chunk_max,sizeof(trace_frame_21)-pos);endpoint.feed(trace_frame_21+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_22);){const auto n=std::min(chunk_max,sizeof(trace_frame_22)-pos);endpoint.feed(trace_frame_22+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_23);){const auto n=std::min(chunk_max,sizeof(trace_frame_23)-pos);endpoint.feed(trace_frame_23+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_24);){const auto n=std::min(chunk_max,sizeof(trace_frame_24)-pos);endpoint.feed(trace_frame_24+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_25);){const auto n=std::min(chunk_max,sizeof(trace_frame_25)-pos);endpoint.feed(trace_frame_25+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_26);){const auto n=std::min(chunk_max,sizeof(trace_frame_26)-pos);endpoint.feed(trace_frame_26+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"RX_OVERFLOW"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="rx-overflow:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:5";}
 }
@@ -1073,71 +1073,71 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_6,sizeof(trace_frame_6),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,1,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_6);){const auto n=std::min(chunk_max,sizeof(trace_frame_6)-pos);endpoint.feed(trace_frame_6+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,1);
 const Expected expected{"FAULT",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TX_OVERFLOW"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="tx-overflow:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:5";}
 }
@@ -1147,55 +1147,55 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(18446744073709551605ULL,batch,std::optional<RawSample>{RawSample{18446744073709551605ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(18446744073709551605ULL,std::optional<RawSample>{RawSample{18446744073709551605ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK","TIME_OVERFLOW"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="time-overflow:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:5";}
 }
@@ -1205,70 +1205,70 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_27,sizeof(trace_frame_27),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_27);){const auto n=std::min(chunk_max,sizeof(trace_frame_27)-pos);endpoint.feed(trace_frame_27+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"ID_CONFLICT"},{"BATCH_INHIBITED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="whitespace-conflict:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:5";}
 }
@@ -1278,71 +1278,71 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_10,sizeof(trace_frame_10),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_11,sizeof(trace_frame_11),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_10);){const auto n=std::min(chunk_max,sizeof(trace_frame_10)-pos);endpoint.feed(trace_frame_10+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_11);){const auto n=std::min(chunk_max,sizeof(trace_frame_11)-pos);endpoint.feed(trace_frame_11+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",190000ULL,1040000ULL,true,{},{"WRONG_ARM_OR_SESSION","ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-current-hb:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:5";}
 }
@@ -1352,71 +1352,71 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_11,sizeof(trace_frame_11),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_10,sizeof(trace_frame_10),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_11);){const auto n=std::min(chunk_max,sizeof(trace_frame_11)-pos);endpoint.feed(trace_frame_11+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_10);){const auto n=std::min(chunk_max,sizeof(trace_frame_10)-pos);endpoint.feed(trace_frame_10+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",190000ULL,1040000ULL,true,{},{"ACCEPTED","WRONG_ARM_OR_SESSION"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="current-stale-hb:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:5";}
 }
@@ -1426,57 +1426,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_28,sizeof(trace_frame_28),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_28);){const auto n=std::min(chunk_max,sizeof(trace_frame_28)-pos);endpoint.feed(trace_frame_28+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"INHIBIT_REQUESTED","BATCH_INHIBITED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stop-same-id:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:5";}
 }
@@ -1486,57 +1486,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_28,sizeof(trace_frame_28),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_28);){const auto n=std::min(chunk_max,sizeof(trace_frame_28)-pos);endpoint.feed(trace_frame_28+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"STOPPED",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"BATCH_INHIBITED","INHIBIT_REQUESTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="same-id-stop:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:5";}
 }
@@ -1546,64 +1546,64 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_29,sizeof(trace_frame_29),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_29,sizeof(trace_frame_29),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_29);){const auto n=std::min(chunk_max,sizeof(trace_frame_29)-pos);endpoint.feed(trace_frame_29+pos,n,40000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_29);){const auto n=std::min(chunk_max,sizeof(trace_frame_29)-pos);endpoint.feed(trace_frame_29+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED","RETRY:ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-disarm:9";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:5";}
 }
@@ -1613,66 +1613,66 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_30,sizeof(trace_frame_30),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_18,sizeof(trace_frame_18),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_30);){const auto n=std::min(chunk_max,sizeof(trace_frame_30)-pos);endpoint.feed(trace_frame_30+pos,n,35000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_18);){const auto n=std::min(chunk_max,sizeof(trace_frame_18)-pos);endpoint.feed(trace_frame_18+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"IDENTITY"},{"REJECTED","REJECTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="multiple-hello:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",18446744073709551615ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",18446744073709551615ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,0ULL,"","",0ULL,0ULL,false,{"IDENTITY"},{"REJECTED"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="identity-exhaustion:0";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:5";}
 }
@@ -1682,84 +1682,84 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",false,false}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",false,false}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(75000ULL,batch,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(75000ULL,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:16";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(85000ULL,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:18";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_31,sizeof(trace_frame_31),m))++errors;else batch.push_back(m);}
-c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_31);){const auto n=std::min(chunk_max,sizeof(trace_frame_31)-pos);endpoint.feed(trace_frame_31+pos,n,90000ULL);pos+=n;}}
+endpoint.cycle(90000ULL,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{"REJECTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:19";}
 }
@@ -1774,49 +1774,49 @@ const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:21";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_32,sizeof(trace_frame_32),m))++errors;else batch.push_back(m);}
-c.cycle(95000ULL,batch,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_32);){const auto n=std::min(chunk_max,sizeof(trace_frame_32)-pos);endpoint.feed(trace_frame_32+pos,n,95000ULL);pos+=n;}}
+endpoint.cycle(95000ULL,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="feedback-recovery:22";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:5";}
 }
@@ -1826,116 +1826,116 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(75000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(75000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:16";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(80000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(80000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(85000ULL,batch,std::nullopt,errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,85000ULL);pos+=n;}}
+endpoint.cycle(85000ULL,std::nullopt,false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"REJECTED"},"",false,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="stale-reference:18";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:5";}
 }
@@ -1945,63 +1945,63 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(75000ULL,batch,std::optional<RawSample>{RawSample{75000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(75000ULL,std::optional<RawSample>{RawSample{75000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:16";}
 }
@@ -2011,49 +2011,49 @@ const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_33,sizeof(trace_frame_33),m))++errors;else batch.push_back(m);}
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_33);){const auto n=std::min(chunk_max,sizeof(trace_frame_33)-pos);endpoint.feed(trace_frame_33+pos,n,80000ULL);pos+=n;}}
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,0LL,"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",true,true}},false,8);
 const Expected expected{"DISARMED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="continuity-reset:18";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:5";}
 }
@@ -2063,55 +2063,55 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,1000000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,1000000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="count-rate:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:5";}
 }
@@ -2121,55 +2121,55 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,(-9223372036854775807LL-1),"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,9223372036854775807LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,9223372036854775807LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="signed-delta-overflow:8";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:5";}
 }
@@ -2179,61 +2179,61 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,150LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,150LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{-1.0},std::optional<double>{-50.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,300LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,300LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{-2.0},std::optional<double>{-100.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="negative-direction:9";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:5";}
 }
@@ -2243,97 +2243,97 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,150LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,150LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{1.0},std::optional<double>{50.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,300LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,300LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{2.0},std::optional<double>{100.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,450LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,450LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{3.0},std::optional<double>{150.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,600LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,600LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{4.0},std::optional<double>{200.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,750LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,750LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{5.0},std::optional<double>{200.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,900LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,900LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{6.0},std::optional<double>{200.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,1050LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,1050LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{7.0},std::optional<double>{200.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,1200LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,1200LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{8.0},std::optional<double>{200.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="velocity-window:15";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:5";}
 }
@@ -2343,61 +2343,61 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,1LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{30000ULL,1LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK_INTEGRITY"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="duplicate-sample:9";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:5";}
 }
@@ -2407,30 +2407,30 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_34,sizeof(trace_frame_34),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_34);){const auto n=std::min(chunk_max,sizeof(trace_frame_34)-pos);endpoint.feed(trace_frame_34+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"REJECTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_35,sizeof(trace_frame_35),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_35);){const auto n=std::min(chunk_max,sizeof(trace_frame_35)-pos);endpoint.feed(trace_frame_35+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",3ULL,2ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_36,sizeof(trace_frame_36),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_36);){const auto n=std::min(chunk_max,sizeof(trace_frame_36)-pos);endpoint.feed(trace_frame_36+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",3ULL,2ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"REJECTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:10";}
 }
@@ -2440,42 +2440,42 @@ const Expected expected{"CONFIGURED",3ULL,2ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="calibration-change:11";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:5";}
 }
@@ -2485,83 +2485,83 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,true,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},true,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"EXTERNAL_INHIBIT"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_37,sizeof(trace_frame_37),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,true,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_37);){const auto n=std::min(chunk_max,sizeof(trace_frame_37)-pos);endpoint.feed(trace_frame_37+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},true,8);
 const Expected expected{"FAULT",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"EXTERNAL_INHIBIT"},{"BATCH_INHIBITED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_38,sizeof(trace_frame_38),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_38);){const auto n=std::min(chunk_max,sizeof(trace_frame_38)-pos);endpoint.feed(trace_frame_38+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",6ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="external-release:12";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:5";}
 }
@@ -2571,57 +2571,57 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,14000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,14000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{93.33333333333333},std::optional<double>{4666.666666666667},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,28000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,28000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{186.66666666666666},std::optional<double>{9333.333333333334},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,42000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,42000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{280.0},std::optional<double>{14000.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,56000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,56000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{373.3333333333333},std::optional<double>{18666.666666666668},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,70000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,70000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{466.6666666666667},std::optional<double>{18666.666666666668},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,84000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,84000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{560.0},std::optional<double>{18666.666666666668},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{18666.666666666668},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,112000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,112000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,false,false,std::optional<double>{746.6666666666666},std::optional<double>{18666.666666666668},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:15";}
 }
@@ -2631,110 +2631,110 @@ const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",
 if(accepted==false && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:16";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_39,sizeof(trace_frame_39),m))++errors;else batch.push_back(m);}
-c.cycle(75000ULL,batch,std::optional<RawSample>{RawSample{75000ULL,112000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_39);){const auto n=std::min(chunk_max,sizeof(trace_frame_39)-pos);endpoint.feed(trace_frame_39+pos,n,75000ULL);pos+=n;}}
+endpoint.cycle(75000ULL,std::optional<RawSample>{RawSample{75000ULL,112000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{"BATCH_INHIBITED"},"66666666666666666666666666666666",true,false,false,std::optional<double>{746.6666666666666},std::optional<double>{14000.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{4666.666666666667},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:18";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(85000ULL,std::optional<RawSample>{RawSample{85000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:19";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(90000ULL,std::optional<RawSample>{RawSample{90000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{-4666.666666666667},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:20";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(95000ULL,batch,std::optional<RawSample>{RawSample{95000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(95000ULL,std::optional<RawSample>{RawSample{95000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{-4666.666666666667},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:21";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(100000ULL,batch,std::optional<RawSample>{RawSample{100000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(100000ULL,std::optional<RawSample>{RawSample{100000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:22";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(105000ULL,batch,std::optional<RawSample>{RawSample{105000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(105000ULL,std::optional<RawSample>{RawSample{105000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,false,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:23";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(110000ULL,batch,std::optional<RawSample>{RawSample{110000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(110000ULL,std::optional<RawSample>{RawSample{110000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:24";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(115000ULL,batch,std::optional<RawSample>{RawSample{115000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(115000ULL,std::optional<RawSample>{RawSample{115000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:25";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(120000ULL,batch,std::optional<RawSample>{RawSample{120000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(120000ULL,std::optional<RawSample>{RawSample{120000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"TRAVEL_LIMIT"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:26";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_40,sizeof(trace_frame_40),m))++errors;else batch.push_back(m);}
-c.cycle(125000ULL,batch,std::optional<RawSample>{RawSample{125000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_40);){const auto n=std::min(chunk_max,sizeof(trace_frame_40)-pos);endpoint.feed(trace_frame_40+pos,n,125000ULL);pos+=n;}}
+endpoint.cycle(125000ULL,std::optional<RawSample>{RawSample{125000ULL,98000LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{653.3333333333334},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="travel-recovery:27";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:5";}
 }
@@ -2744,99 +2744,99 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_4,sizeof(trace_frame_4),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_4);){const auto n=std::min(chunk_max,sizeof(trace_frame_4)-pos);endpoint.feed(trace_frame_4+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_14,sizeof(trace_frame_14),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_7,sizeof(trace_frame_7),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_21,sizeof(trace_frame_21),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_22,sizeof(trace_frame_22),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_23,sizeof(trace_frame_23),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_24,sizeof(trace_frame_24),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_25,sizeof(trace_frame_25),m))++errors;else batch.push_back(m);}
-{Command m;if(!decode(trace_frame_26,sizeof(trace_frame_26),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_14);){const auto n=std::min(chunk_max,sizeof(trace_frame_14)-pos);endpoint.feed(trace_frame_14+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_7);){const auto n=std::min(chunk_max,sizeof(trace_frame_7)-pos);endpoint.feed(trace_frame_7+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_21);){const auto n=std::min(chunk_max,sizeof(trace_frame_21)-pos);endpoint.feed(trace_frame_21+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_22);){const auto n=std::min(chunk_max,sizeof(trace_frame_22)-pos);endpoint.feed(trace_frame_22+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_23);){const auto n=std::min(chunk_max,sizeof(trace_frame_23)-pos);endpoint.feed(trace_frame_23+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_24);){const auto n=std::min(chunk_max,sizeof(trace_frame_24)-pos);endpoint.feed(trace_frame_24+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_25);){const auto n=std::min(chunk_max,sizeof(trace_frame_25)-pos);endpoint.feed(trace_frame_25+pos,n,45000ULL);pos+=n;}}
+{for(std::size_t pos=0;pos<sizeof(trace_frame_26);){const auto n=std::min(chunk_max,sizeof(trace_frame_26)-pos);endpoint.feed(trace_frame_26+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"RX_OVERFLOW"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_41,sizeof(trace_frame_41),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_41);){const auto n=std::min(chunk_max,sizeof(trace_frame_41)-pos);endpoint.feed(trace_frame_41+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"RX_OVERFLOW"},{"REJECTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_42,sizeof(trace_frame_42),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_42);){const auto n=std::min(chunk_max,sizeof(trace_frame_42)-pos);endpoint.feed(trace_frame_42+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"RX_OVERFLOW"},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_43,sizeof(trace_frame_43),m))++errors;else batch.push_back(m);}
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_43);){const auto n=std::min(chunk_max,sizeof(trace_frame_43)-pos);endpoint.feed(trace_frame_43+pos,n,60000ULL);pos+=n;}}
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",5ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="overflow-recovery:13";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:5";}
 }
@@ -2846,70 +2846,70 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_3,sizeof(trace_frame_3),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_3);){const auto n=std::min(chunk_max,sizeof(trace_frame_3)-pos);endpoint.feed(trace_frame_3+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"ARMED",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_20,sizeof(trace_frame_20),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_20);){const auto n=std::min(chunk_max,sizeof(trace_frame_20)-pos);endpoint.feed(trace_frame_20+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"RUNNING",3ULL,1ULL,"00000000000000000000000000000064","",235000ULL,1040000ULL,true,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,true,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},true,8);
 c.complete_fixture_only(45000ULL);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"EXTERNAL_INHIBIT"},{},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{true,"11111111111111111111111111111111","00000000000000000000000000000064","FAULT",3ULL,5ULL,45000ULL}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="fault-terminal-precedence:10";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:5";}
 }
@@ -2919,71 +2919,71 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_44,sizeof(trace_frame_44),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_44);){const auto n=std::min(chunk_max,sizeof(trace_frame_44)-pos);endpoint.feed(trace_frame_44+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{"STATUS"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_18,sizeof(trace_frame_18),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_18);){const auto n=std::min(chunk_max,sizeof(trace_frame_18)-pos);endpoint.feed(trace_frame_18+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(75000ULL,batch,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(75000ULL,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:16";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:17";}
 }
@@ -2993,56 +2993,56 @@ const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:18";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_45,sizeof(trace_frame_45),m))++errors;else batch.push_back(m);}
-c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_45);){const auto n=std::min(chunk_max,sizeof(trace_frame_45)-pos);endpoint.feed(trace_frame_45+pos,n,85000ULL);pos+=n;}}
+endpoint.cycle(85000ULL,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",4ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{"SEQUENCE_EXHAUSTED"},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:19";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_46,sizeof(trace_frame_46),m))++errors;else batch.push_back(m);}
-c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_46);){const auto n=std::min(chunk_max,sizeof(trace_frame_46)-pos);endpoint.feed(trace_frame_46+pos,n,90000ULL);pos+=n;}}
+endpoint.cycle(90000ULL,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",5ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="request-exhaustion:20";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:5";}
 }
@@ -3052,147 +3052,147 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_19,sizeof(trace_frame_19),m))++errors;else batch.push_back(m);}
-c.cycle(35000ULL,batch,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_19);){const auto n=std::min(chunk_max,sizeof(trace_frame_19)-pos);endpoint.feed(trace_frame_19+pos,n,35000ULL);pos+=n;}}
+endpoint.cycle(35000ULL,std::optional<RawSample>{RawSample{35000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_47,sizeof(trace_frame_47),m))++errors;else batch.push_back(m);}
-c.cycle(40000ULL,batch,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_47);){const auto n=std::min(chunk_max,sizeof(trace_frame_47)-pos);endpoint.feed(trace_frame_47+pos,n,40000ULL);pos+=n;}}
+endpoint.cycle(40000ULL,std::optional<RawSample>{RawSample{40000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_5,sizeof(trace_frame_5),m))++errors;else batch.push_back(m);}
-c.cycle(45000ULL,batch,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_5);){const auto n=std::min(chunk_max,sizeof(trace_frame_5)-pos);endpoint.feed(trace_frame_5+pos,n,45000ULL);pos+=n;}}
+endpoint.cycle(45000ULL,std::optional<RawSample>{RawSample{45000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_14,sizeof(trace_frame_14),m))++errors;else batch.push_back(m);}
-c.cycle(50000ULL,batch,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_14);){const auto n=std::min(chunk_max,sizeof(trace_frame_14)-pos);endpoint.feed(trace_frame_14+pos,n,50000ULL);pos+=n;}}
+endpoint.cycle(50000ULL,std::optional<RawSample>{RawSample{50000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_7,sizeof(trace_frame_7),m))++errors;else batch.push_back(m);}
-c.cycle(55000ULL,batch,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_7);){const auto n=std::min(chunk_max,sizeof(trace_frame_7)-pos);endpoint.feed(trace_frame_7+pos,n,55000ULL);pos+=n;}}
+endpoint.cycle(55000ULL,std::optional<RawSample>{RawSample{55000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_21,sizeof(trace_frame_21),m))++errors;else batch.push_back(m);}
-c.cycle(60000ULL,batch,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_21);){const auto n=std::min(chunk_max,sizeof(trace_frame_21)-pos);endpoint.feed(trace_frame_21+pos,n,60000ULL);pos+=n;}}
+endpoint.cycle(60000ULL,std::optional<RawSample>{RawSample{60000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_22,sizeof(trace_frame_22),m))++errors;else batch.push_back(m);}
-c.cycle(65000ULL,batch,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_22);){const auto n=std::min(chunk_max,sizeof(trace_frame_22)-pos);endpoint.feed(trace_frame_22+pos,n,65000ULL);pos+=n;}}
+endpoint.cycle(65000ULL,std::optional<RawSample>{RawSample{65000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_23,sizeof(trace_frame_23),m))++errors;else batch.push_back(m);}
-c.cycle(70000ULL,batch,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_23);){const auto n=std::min(chunk_max,sizeof(trace_frame_23)-pos);endpoint.feed(trace_frame_23+pos,n,70000ULL);pos+=n;}}
+endpoint.cycle(70000ULL,std::optional<RawSample>{RawSample{70000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_24,sizeof(trace_frame_24),m))++errors;else batch.push_back(m);}
-c.cycle(75000ULL,batch,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_24);){const auto n=std::min(chunk_max,sizeof(trace_frame_24)-pos);endpoint.feed(trace_frame_24+pos,n,75000ULL);pos+=n;}}
+endpoint.cycle(75000ULL,std::optional<RawSample>{RawSample{75000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:16";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_25,sizeof(trace_frame_25),m))++errors;else batch.push_back(m);}
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_25);){const auto n=std::min(chunk_max,sizeof(trace_frame_25)-pos);endpoint.feed(trace_frame_25+pos,n,80000ULL);pos+=n;}}
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_26,sizeof(trace_frame_26),m))++errors;else batch.push_back(m);}
-c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_26);){const auto n=std::min(chunk_max,sizeof(trace_frame_26)-pos);endpoint.feed(trace_frame_26+pos,n,85000ULL);pos+=n;}}
+endpoint.cycle(85000ULL,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:18";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_19,sizeof(trace_frame_19),m))++errors;else batch.push_back(m);}
-c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_19);){const auto n=std::min(chunk_max,sizeof(trace_frame_19)-pos);endpoint.feed(trace_frame_19+pos,n,90000ULL);pos+=n;}}
+endpoint.cycle(90000ULL,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"STALE_ID"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:19";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_48,sizeof(trace_frame_48),m))++errors;else batch.push_back(m);}
-c.cycle(95000ULL,batch,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_48);){const auto n=std::min(chunk_max,sizeof(trace_frame_48)-pos);endpoint.feed(trace_frame_48+pos,n,95000ULL);pos+=n;}}
+endpoint.cycle(95000ULL,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",3ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:20";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_19,sizeof(trace_frame_19),m))++errors;else batch.push_back(m);}
-c.cycle(100000ULL,batch,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_19);){const auto n=std::min(chunk_max,sizeof(trace_frame_19)-pos);endpoint.feed(trace_frame_19+pos,n,100000ULL);pos+=n;}}
+endpoint.cycle(100000ULL,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",3ULL,1ULL,"00000000000000000000000000000066","",0ULL,0ULL,false,{},{"WRONG_SESSION"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="cache-scope:21";}
 }
 }
-{Controller c(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL);
+{MemoryEndpoint endpoint(Policy{200000ULL,200000ULL,50000ULL,20000ULL,20000000ULL},EncoderPolicy{0.1,5000000.0,10000ULL,20000ULL},"11111111111111111111111111111111",100ULL,50000);auto& c=endpoint.controller;
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_0,sizeof(trace_frame_0),m))++errors;else batch.push_back(m);}
-c.cycle(0ULL,batch,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_0);){const auto n=std::min(chunk_max,sizeof(trace_frame_0)-pos);endpoint.feed(trace_frame_0+pos,n,0ULL);pos+=n;}}
+endpoint.cycle(0ULL,std::optional<RawSample>{RawSample{0ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"HELLO_REPLY"},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:0";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(5000ULL,batch,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(5000ULL,std::optional<RawSample>{RawSample{5000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:1";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(10000ULL,batch,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(10000ULL,std::optional<RawSample>{RawSample{10000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:2";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(15000ULL,batch,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(15000ULL,std::optional<RawSample>{RawSample{15000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:3";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(20000ULL,batch,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(20000ULL,std::optional<RawSample>{RawSample{20000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",1ULL,0ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:4";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_1,sizeof(trace_frame_1),m))++errors;else batch.push_back(m);}
-c.cycle(25000ULL,batch,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_1);){const auto n=std::min(chunk_max,sizeof(trace_frame_1)-pos);endpoint.feed(trace_frame_1+pos,n,25000ULL);pos+=n;}}
+endpoint.cycle(25000ULL,std::optional<RawSample>{RawSample{25000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:5";}
 }
@@ -3202,63 +3202,63 @@ const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:6";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_2,sizeof(trace_frame_2),m))++errors;else batch.push_back(m);}
-c.cycle(30000ULL,batch,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_2);){const auto n=std::min(chunk_max,sizeof(trace_frame_2)-pos);endpoint.feed(trace_frame_2+pos,n,30000ULL);pos+=n;}}
+endpoint.cycle(30000ULL,std::optional<RawSample>{RawSample{30000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"CONFIGURED",2ULL,1ULL,"00000000000000000000000000000064","00000000000000000000000000000065",0ULL,0ULL,false,{},{"ACCEPTED"},"66666666666666666666666666666666",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:7";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(80000ULL,batch,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(80000ULL,std::optional<RawSample>{RawSample{80000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",false,false,false,std::nullopt,std::nullopt,Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:8";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(85000ULL,batch,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(85000ULL,std::optional<RawSample>{RawSample{85000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:9";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(90000ULL,batch,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(90000ULL,std::optional<RawSample>{RawSample{90000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,false,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:10";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(95000ULL,batch,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(95000ULL,std::optional<RawSample>{RawSample{95000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:11";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(100000ULL,batch,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(100000ULL,std::optional<RawSample>{RawSample{100000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:12";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(105000ULL,batch,std::optional<RawSample>{RawSample{105000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(105000ULL,std::optional<RawSample>{RawSample{105000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:13";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(110000ULL,batch,std::optional<RawSample>{RawSample{110000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(110000ULL,std::optional<RawSample>{RawSample{110000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:14";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(115000ULL,batch,std::optional<RawSample>{RawSample{115000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(115000ULL,std::optional<RawSample>{RawSample{115000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:15";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-c.cycle(120000ULL,batch,std::optional<RawSample>{RawSample{120000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+endpoint.cycle(120000ULL,std::optional<RawSample>{RawSample{120000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{"FEEDBACK"},{},"",true,false,true,std::nullopt,std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:16";}
 }
@@ -3268,9 +3268,9 @@ const Expected expected{"FAULT",3ULL,1ULL,"00000000000000000000000000000064","",
 if(accepted==true && matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:17";}
 }
 {
-std::vector<Command> batch;std::size_t errors=0;
-{Command m;if(!decode(trace_frame_49,sizeof(trace_frame_49),m))++errors;else batch.push_back(m);}
-c.cycle(125000ULL,batch,std::optional<RawSample>{RawSample{125000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},errors>0,false,8,false,errors);
+// Framed bytes traverse the real bounded parser/event endpoint.
+{for(std::size_t pos=0;pos<sizeof(trace_frame_49);){const auto n=std::min(chunk_max,sizeof(trace_frame_49)-pos);endpoint.feed(trace_frame_49+pos,n,125000ULL);pos+=n;}}
+endpoint.cycle(125000ULL,std::optional<RawSample>{RawSample{125000ULL,0LL,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",true,true}},false,8);
 const Expected expected{"DISARMED",4ULL,1ULL,"00000000000000000000000000000064","",0ULL,0ULL,false,{},{"ACCEPTED"},"77777777777777777777777777777777",true,true,true,std::optional<double>{0.0},std::optional<double>{0.0},Terminal{}};
 if(matches(c,expected)){++summary.passed;}else{++summary.failed;if(!summary.first_failure)summary.first_failure="sample-gap:18";}
 }
