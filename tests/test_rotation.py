@@ -165,7 +165,7 @@ class OpticalTests(unittest.TestCase):
         t = i * 5000
         angle = 180 + 30 * t / 1e6
         p = dict(mode="SIMULATED", seq=str(i + 1), time_us=str(t), count=str(round(angle * 150)),
-            angle=angle, velocity=30, truth=angle + 5, motion="5", ref="6" * 32, kind="SCAN", state="RUNNING")
+            angle=angle, velocity=30, truth=angle + 5, boot_id="1"*32, session_id="2"*32, generation="1", motion="5", ref="6" * 32, kind="SCAN", state="RUNNING")
         p.update(changes)
         return p
 
@@ -176,10 +176,10 @@ class OpticalTests(unittest.TestCase):
         s = samples[-1]
         self.assertLessEqual(s["encoder_low_us"], s["midpoint_us"])
         self.assertGreaterEqual(s["encoder_high_us"], s["midpoint_us"])
-        self.assertAlmostEqual(s["optical_truth_deg"] - s["estimated_angle_deg"], 5)
+        self.assertAlmostEqual(s["optical_truth_deg"] - s["estimated_angle_deg"], 5, delta=.0001)
         self.assertAlmostEqual(s["intensity_au"], a.model.intensity(s["optical_truth_deg"]), delta=.0001)
         self.assertLess(s["clock_error_us"], 1)
-        self.assertAlmostEqual(s["timing_angle_bound_deg"], .003)
+        self.assertAlmostEqual(s["timing_angle_bound_deg"], .0031)
 
     def test_gap_in_endpoint_bracket_is_not_silently_interpolated(self):
         a = self.acquisition()

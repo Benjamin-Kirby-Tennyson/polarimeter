@@ -1,5 +1,9 @@
 # Simulated rotation and acquisition Stage 4
 
+This report records the initial Stage 4 baseline at commit `2d9b921`.
+The [independent-review follow-up](offline-rotation-stage4-review.md) supersedes
+its terminal-recovery, optical provenance, lifecycle and latest test details.
+
 Date: 2026-11-27. Status: **SIMULATED software**, no installed-firmware compatibility
 or physical readiness claim. The real serial/motor adapters remain locked.
 This stage follows the [Stage 3 review](https://github.com/Benjamin-Kirby-Tennyson/polarimeter/issues/1#issuecomment-7209634066).

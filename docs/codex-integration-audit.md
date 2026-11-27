@@ -75,8 +75,10 @@ Keep the passive-observation path in
 
 The [Stage 4 report](offline-rotation-stage4.md) records the finite multi-turn
 scan, framed in-memory host, worker-owned acquisition, streamed provenance and
-Tk Rotation lab. Latest desktop opt-in discovery: **153 passed, no skips**,
-including ten GUI tests. Hardware access remains locked; these results do not
+Tk Rotation lab. The [review follow-up](offline-rotation-stage4-review.md)
+records terminal/deadline, optics/provenance and lifecycle corrections, separate
+simulated Stokes analysis and the proposed uncompiled ESP32 skeleton. Latest
+desktop opt-in discovery: **176 passed, no skips**, including eleven GUI tests. Hardware access remains locked; these results do not
 establish firmware compatibility, physical angle, calibrated power or stopping.
 
 ### Offline simulation stage 3

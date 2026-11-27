@@ -181,6 +181,29 @@ class GuiTests(unittest.TestCase):
         self.assertIn("UNKNOWN", panel.truth.cget("text"))
         self.assertEqual(panel.intensity.cget("text"), "Intensity: UNKNOWN")
 
+    def test_rotation_restart_ignores_previous_experiment_snapshot(self):
+        self.app.rotation_lab()
+        panel=self.app.rotation_panel
+        panel.start()
+        first=panel.experiment_id
+        panel.cancel()
+        deadline=time.monotonic()+5
+        while panel.worker.busy.is_set() and time.monotonic()<deadline:
+            self.root.update();time.sleep(.01)
+        panel.start()
+        second=panel.experiment_id
+        self.assertNotEqual(first,second)
+        # Inject a queued old terminal; it cannot enable Start or restore data.
+        panel.worker.publish(dict(mode="SIMULATED",experiment_id=first,phase="COMPLETED",detail="old",
+            estimated_deg=123,optical_truth_deg=128,intensity_au=1,valid_samples=5,rejected_samples=0,history=()))
+        panel.root.after_cancel(panel.after_id)
+        panel.after_id=None
+        panel.poll()
+        self.assertIsNone(panel.last_snapshot)
+        self.assertEqual(str(panel.start_button.cget("state")),"disabled")
+        self.assertIn("UNKNOWN",panel.estimate.cget("text"))
+        panel.cancel()
+
     def test_rotation_worker_progresses_without_tk_polling(self):
         self.app.rotation_lab()
         panel = self.app.rotation_panel

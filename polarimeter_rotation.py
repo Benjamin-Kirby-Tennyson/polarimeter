@@ -5,7 +5,7 @@ the installed ESP32. Both endpoints share an explicit virtual microsecond clock.
 An eventual physical transport needs a separate clock-mapping/safety review.
 """
 from collections import OrderedDict, deque
-import itertools
+from uuid import uuid4
 
 from polarimeter_controller import (OfflineController, Readiness, SimulatedReference,
                                    Timing, decimal, identity, number, uint)
@@ -14,15 +14,15 @@ from polarimeter_simulation import (LoopParameters, MotorPlant, PIParameters,
                                     PlantParameters, SimulationHarness, SpeedPI)
 
 
-def simulated_demo():
+def simulated_demo(*, id_factory=None):
     """Explicit demo profile only; zero physical configuration is supplied."""
-    ids = itertools.count(100)
+    new_id = id_factory or (lambda: uuid4().hex)
     controller = OfflineController(
         timing=Timing(200000, 200000, 50000, 20000, 60000000),
-        readiness=Readiness(.1, 10000, 5e6, 20000), boot_id="1" * 32,
-        id_factory=lambda: f"{next(ids):032x}")
+        readiness=Readiness(.1, 10000, 5e6, 20000), boot_id=new_id(),
+        id_factory=new_id)
     plant = MotorPlant(PlantParameters(180, .12, 36000, 1.5, 1, .02, 0, 5, 0, .02),
-                       continuity_id="a" * 32, seed=12)
+                       continuity_id=new_id(), seed=12)
     pi = SpeedPI(PIParameters(.012, .08, .7, .8))
     loop = LoopParameters(2, .08, .2, 200000, 50000, 200, 1, .7, .1, 500000, 500000)
     config = dict(config_id="2" * 32, calibration_id="3" * 32, counts_per_qwp_rev=54000,
@@ -56,6 +56,7 @@ class MemoryRotationLink:
         self.suppress_responses = self.drop_heartbeats = False
         self.delay_us = 0
         self.latest = None
+        self.retained_terminal = None
 
     def send(self, frame, *, priority=False):
         if not isinstance(frame, bytes) or len(frame) > 1050:
@@ -99,7 +100,13 @@ class MemoryRotationLink:
             c.establish_reference(SimulatedReference("6" * 32, c.config["calibration_id"], 0, 0, 1))
         self.latest = result
         self.sequence += 1
-        terminal = result["terminal"]
+        # One bounded record is retained for session-safe GET_STATUS recovery.
+        # It is superseded only by a new motion terminal or session change.
+        if self.retained_terminal is not None and self.retained_terminal["session_id"] != c.session_id:
+            self.retained_terminal = None
+        if result["terminal"] is not None:
+            self.retained_terminal = dict(result["terminal"])
+        terminal = self.retained_terminal
         packet = dict(v=1, mode=self.mode, type="STATUS", boot_id=c.boot_id, session_id=c.session_id,
             seq=str(self.sequence), time_us=str(now_us), state=c.state, active=c.output.active,
             duty=c.output.duty, angle=c.snapshot()["angle_deg"],
@@ -108,7 +115,7 @@ class MemoryRotationLink:
             ref=None if c._reference is None else c._reference.epoch,
             challenge=None if c.challenge is None else c.challenge[0], generation=str(c.arm_generation),
             ready=c._stationary(), ack=[[r["request_type"], r["request_id"], r["outcome"]] for r in result["replies"]],
-            terminal=None if terminal is None else [terminal["request_id"], terminal["outcome"], terminal["session_id"]],
+            terminal=None if terminal is None else [terminal[k] for k in ("request_id", "outcome", "session_id", "boot_id", "arm_generation", "time_us")],
             motion=c.motion_request_id, kind=c.motion_kind, faults=sorted(c.faults),
             truth=result["optical_fast_axis_truth_deg"],
             nonce=next((r.get("host_nonce") for r in result["replies"] if r["request_type"] == "HELLO"), None))
@@ -141,20 +148,26 @@ class RotationHost:
     mode = "SIMULATED"
     fields = set("v mode type boot_id session_id seq time_us state active duty angle velocity count ref challenge generation ready ack terminal motion kind faults truth nonce".split())
 
-    def __init__(self, transport, config, plan):
+    def __init__(self, transport, config, plan, *, nonce=None):
         if getattr(transport, "mode", None) != self.mode:
             raise ValueError("Only an explicit SIMULATED transport is supported")
         self.transport, self.config, self.plan = transport, dict(config), dict(plan)
         self.phase = "IDLE"
         self.latest = None
         self.boot_id = self.session_id = None
-        self.nonce = "b" * 32
+        self.nonce = identity(nonce or uuid4().hex)
         self.request = self.heartbeat = self._sequence = 0
         self.pending = OrderedDict()
         self._seen = OrderedDict()
         self._acked = deque(maxlen=16)
         self._last_rx = self._last_hb = self._started = None
         self.motion_id = None
+        self.arm_generation = self._expected_arm = None
+        self.reference = None
+        self._phase_since = 0
+        self._phase_observed = "IDLE"
+        self._scan_deadline = None
+        self._heartbeats = OrderedDict()
         self.accepted_motion = False
         self.terminal = None
         self.cancelled = self.failed = False
@@ -179,7 +192,11 @@ class RotationHost:
         m.update(extra)
         frame = encode_frame(m)
         self.transport.send(frame, priority=kind == "STOP")
-        if kind != "HEARTBEAT":
+        if kind == "HEARTBEAT":
+            if len(self._heartbeats) >= 4:
+                raise BufferError("Unacknowledged heartbeat capacity exceeded")
+            self._heartbeats[rid] = now + 150000
+        else:
             self.pending[(kind, rid)] = [frame, now, now + 150000, False]
         return rid
 
@@ -191,10 +208,13 @@ class RotationHost:
         self._send("HELLO", now_us)
 
     def cancel(self, now_us):
+        if self.phase == "CANCELLED" or self.cancelled:
+            return
         self.cancelled = True
         self.terminal = None
         self.phase = "UNKNOWN" if self.failed else "CANCELLING"
         self.pending.clear()
+        self._heartbeats.clear()
         try:
             self._send("STOP", uint(now_us))
         except (OSError, ValueError, BufferError):
@@ -244,6 +264,8 @@ class RotationHost:
             raise ValueError("Unknown motion kind")
         if not isinstance(p["faults"], list) or len(p["faults"]) > 16 or any(not isinstance(f, str) or len(f) > 32 for f in p["faults"]):
             raise ValueError("Invalid faults")
+        if bool(p["faults"]) != (p["state"] == "FAULT"):
+            raise ValueError("Fault/state contradiction")
         if not isinstance(p["ack"], list) or len(p["ack"]) > 8:
             raise ValueError("Invalid acknowledgments")
         for ack in p["ack"]:
@@ -253,10 +275,16 @@ class RotationHost:
             decimal(ack[1], positive=True)
         t = p["terminal"]
         if t is not None:
-            if not isinstance(t, list) or len(t) != 3 or t[1] not in ("COMPLETED", "CANCELLED", "FAULT"):
+            if not isinstance(t, list) or len(t) != 6 or t[1] not in ("COMPLETED", "CANCELLED", "FAULT"):
                 raise ValueError("Malformed terminal event")
             decimal(t[0], positive=True)
             identity(t[2])
+            identity(t[3])
+            decimal(t[4], positive=True)
+            if decimal(t[5]) > timestamp:
+                raise ValueError("Future terminal time")
+            if p["active"] or (t[1] == "FAULT" and p["state"] != "FAULT"):
+                raise ValueError("Terminal/output contradiction")
             if t[1] == "COMPLETED" and (p["state"] != "STOPPED" or p["active"]):
                 raise ValueError("Completion/state contradiction")
         return p, seq
@@ -285,11 +313,39 @@ class RotationHost:
         self._seen[seq] = event.payload
         while len(self._seen) > 8:
             self._seen.popitem(last=False)
+        if (self.arm_generation is not None and p["generation"] != self.arm_generation and not self.cancelled
+                and not (not p["active"] and (p["terminal"] is not None or p["faults"])
+                         and decimal(p["generation"]) > decimal(self.arm_generation))):
+            raise ValueError("Unexpected arm generation")
+        legal_states = {"WAIT_READY": ("DISARMED",), "CONFIGURING": ("DISARMED", "CONFIGURED"),
+            "WAIT_REFERENCE": ("CONFIGURED",), "ASK_CHALLENGE": ("CONFIGURED",),
+            "WAIT_CHALLENGE": ("CONFIGURED",), "ARMING": ("CONFIGURED", "ARMED"),
+            "WAIT_SCAN": ("ARMED",), "SCAN_SENT": ("ARMED", "RUNNING", "STOPPED"),
+            "SCANNING": ("RUNNING", "STOPPED")}
+        if (not self.cancelled and not p["faults"] and self.phase in legal_states
+                and p["state"] not in legal_states[self.phase]):
+            raise ValueError("Illegal phase/state transition")
+        if self.arm_generation is not None and p["active"] and p["ref"] != self.reference:
+            raise ValueError("Active reference changed")
+        if self.accepted_motion and not self.cancelled and p["motion"] != self.motion_id:
+            # Controller may clear motion metadata when it inhibits; only a
+            # matching retained terminal can then establish the old outcome.
+            if p["terminal"] is None:
+                raise ValueError("Accepted motion identity lost")
         self._last_rx = now
         self.latest = p
         for kind, rid, outcome in p["ack"]:
             key = (kind, rid)
             if kind == "HEARTBEAT":
+                if self.cancelled or p["terminal"] is not None or p["faults"]:
+                    continue
+                if rid not in self._heartbeats:
+                    if key in self._acked:
+                        continue
+                    raise ValueError("Unsolicited heartbeat acknowledgment")
+                if now >= self._heartbeats.pop(rid) or outcome != "ACCEPTED":
+                    raise ValueError("Heartbeat rejected or late: " + outcome)
+                self._acked.append(key)
                 continue
             if key not in self.pending:
                 if key in self._acked:
@@ -312,22 +368,42 @@ class RotationHost:
             elif outcome not in (("HELLO_REPLY",) if kind == "HELLO" else ("ACCEPTED", "RETRY:ACCEPTED")):
                 raise ValueError("Command rejected: " + outcome)
             else:
+                expected_states = {"HELLO": ("DISARMED",), "CONFIGURE": ("CONFIGURED",),
+                                   "GET_STATUS": ("CONFIGURED", "STOPPED"), "ARM": ("ARMED",),
+                                   "SCAN": ("RUNNING", "STOPPED", "FAULT")}
+                if p["state"] not in expected_states[kind]:
+                    raise ValueError("ACK/state contradiction")
+                if kind == "ARM":
+                    if p["generation"] != self._expected_arm:
+                        raise ValueError("ARM generation did not increment once")
+                    self.arm_generation = p["generation"]
                 self.phase = {"HELLO": "WAIT_READY", "CONFIGURE": "WAIT_REFERENCE",
                               "GET_STATUS": "WAIT_CHALLENGE", "ARM": "WAIT_SCAN", "SCAN": "SCANNING"}[kind]
                 if kind == "SCAN":
+                    self._scan_deadline = now + decimal(self.plan["duration_us"]) + 200000
                     self.accepted_motion = True
                     self.detail = "Finite simulated scan running; encoder and optical truth are separate"
-        if p["faults"] and not self.failed:
+        if self.accepted_motion and not self.cancelled and p["active"] and (p["motion"] != self.motion_id or p["kind"] != "SCAN"):
+            raise ValueError("Active motion identity/kind mismatch")
+        if p["terminal"] is not None:
+            rid, outcome, session, boot, arm, terminal_time = p["terminal"]
+            if (rid != self.motion_id or session != self.session_id or boot != self.boot_id
+                    or arm != self.arm_generation):
+                raise ValueError("Terminal event belongs to another motion")
+            terminal = tuple(p["terminal"])
+            if self.terminal is not None and terminal != self.terminal:
+                raise ValueError("Conflicting terminal record")
+            if self.accepted_motion and not self.cancelled:
+                self.terminal = terminal
+                self.phase = {"COMPLETED": "COMPLETED", "FAULT": "FAULT", "CANCELLED": "CANCELLED"}[outcome]
+                self.detail = "Finite simulated motion " + outcome.lower() + "; output inhibition does not prove mechanical stopping"
+        if p["faults"]:
             self.phase = "FAULT"
             self.detail = "SIMULATED fault: " + ", ".join(p["faults"])
-        if p["terminal"] is not None and not self.failed:
-            rid, outcome, session = p["terminal"]
-            if rid != self.motion_id or session != self.session_id:
-                raise ValueError("Terminal event belongs to another motion")
-            if self.accepted_motion and self.terminal is None:
-                self.terminal = tuple(p["terminal"])
-                self.phase = "COMPLETED" if outcome == "COMPLETED" else "FAULT" if outcome == "FAULT" else "CANCELLED"
-                self.detail = "Finite simulated motion " + outcome.lower() + "; output inhibition does not prove mechanical stopping"
+        elif self.accepted_motion and not self.cancelled and self.terminal is None and p["state"] != "RUNNING":
+            # Live inactive status cannot keep SCANNING alive. The retained
+            # terminal must establish an outcome, otherwise conservatively fail.
+            raise ValueError("Scan inactive without a recoverable terminal")
 
     def tick(self, now_us):
         now = uint(now_us)
@@ -339,6 +415,17 @@ class RotationHost:
                 return
             if self._last_rx is not None and now - self._last_rx >= 100000:
                 self._unknown(now, "status lost; stopping state is unknown")
+                return
+            if any(now >= deadline for deadline in self._heartbeats.values()) and self.phase not in ("COMPLETED", "CANCELLED", "FAULT"):
+                self._unknown(now, "heartbeat acknowledgment timed out")
+                return
+            if self.phase != self._phase_observed:
+                self._phase_observed, self._phase_since = self.phase, now
+            setup_phases = {"CONNECTING", "WAIT_READY", "CONFIGURING", "WAIT_REFERENCE",
+                            "ASK_CHALLENGE", "WAIT_CHALLENGE", "ARMING", "WAIT_SCAN", "SCAN_SENT"}
+            if ((self.phase in setup_phases and now - self._phase_since >= 500000)
+                    or (self.phase == "SCANNING" and now >= self._scan_deadline)):
+                self._unknown(now, "independent phase deadline expired")
                 return
             for key, pending in tuple(self.pending.items()):
                 frame, sent, deadline, retried = pending
@@ -360,6 +447,8 @@ class RotationHost:
                 self._send("GET_STATUS", now)
                 self.phase = "ASK_CHALLENGE"
             elif self.phase == "WAIT_CHALLENGE" and p["challenge"] is not None:
+                self._expected_arm = str(decimal(p["generation"])+1)
+                self.reference = p["ref"]
                 self._send("ARM", now, config_id=self.config["config_id"], challenge=p["challenge"])
                 self.phase = "ARMING"
             elif self.phase == "WAIT_SCAN":

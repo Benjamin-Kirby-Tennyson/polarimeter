@@ -14,6 +14,7 @@ class RotationPanel:
         self._draw_count = 0
         self.worker = None
         self.last_snapshot = None
+        self.experiment_id = None
         app.label("SIMULATED ROTATION LAB", 8, 6, 624, 30, size=22, parent=parent)
         app.label("3 turns • 30°/s fixture • physical control locked", 8, 40, 624, 26, size=16, parent=parent)
         app.label("Requested end: 1080° • Stokes reconstruction pending", 8, 70, 624, 24, size=16, parent=parent)
@@ -39,7 +40,12 @@ class RotationPanel:
         if self.worker is None or not self.worker.is_alive():
             self.worker = RotationWorker(self.app.controller.directory)
             self.worker.start()
-        self.worker.start_scan()
+        self.experiment_id = self.worker.start_scan()
+        self.last_snapshot = None
+        self.estimate.configure(text="Encoder estimate: UNKNOWN")
+        self.truth.configure(text="Optical truth: UNKNOWN")
+        self.intensity.configure(text="Intensity: — (uncalibrated a.u.)")
+        self.draw(())
         self.start_button.configure(state="disabled")
         self.stop_button.configure(state="normal")
         self.status.configure(text="SIMULATED • connecting and preparing one finite scan")
@@ -58,6 +64,8 @@ class RotationPanel:
                 value = self.worker.snapshots.get_nowait()
             except queue.Empty:
                 value = None
+            if value is not None and self.experiment_id is not None and value.get("experiment_id") != self.experiment_id:
+                value = None
             if value is not None:
                 self.last_snapshot = value
                 phase = value["phase"]
@@ -69,7 +77,7 @@ class RotationPanel:
                 self.intensity.configure(text="Intensity: UNKNOWN" if unavailable else "Intensity: — (uncalibrated a.u.)" if intensity is None else f"Intensity: {intensity:.4f} uncalibrated a.u.")
                 self.counts.configure(text=f"{value['valid_samples']} valid / {value['rejected_samples']} flagged exposures")
                 done = phase in ("COMPLETED", "CANCELLED", "FAULT", "UNKNOWN")
-                self.start_button.configure(state="normal" if done else "disabled")
+                self.start_button.configure(state="normal" if done and not self.worker.busy.is_set() else "disabled")
                 self.stop_button.configure(state="disabled" if done else "normal")
                 self.status.configure(text=f"SIMULATED • {phase} • {value['detail']}")
                 self._draw_count += 1

@@ -9,8 +9,10 @@ Phase 2 [hardware discovery and integration readiness](docs/hardware-readiness.m
 records the current USB inventory, communication-code audit, physical wiring
 checklist, passive-observation plan and future measurement/encoder timing design.
 The CP2102 and touchscreen are identified; no separate USB optical measurement
-device is positively identified. The latest [Stage 4 report](docs/offline-rotation-stage4.md)
-records the simulated rotation workflow and its 153 passing tests, including GUI tests.
+device is positively identified. The latest [review follow-up](docs/offline-rotation-stage4-review.md)
+records 176 passing tests, including eleven mapped GUI tests. Separate
+[simulated Stokes analysis](docs/simulated-stokes-analysis.md) is available offline;
+the [ESP32 target skeleton](docs/esp32-target-build-plan.md) remains uncompiled.
 
 ## Launch the touchscreen interface
 
@@ -242,11 +244,11 @@ a labelled CSV, and used about 25 MiB peak process RSS. A screenshot was
 inspected for layout fit. This is a short simulation measurement, not a
 long-duration resource or hardware validation.
 
-On 2026-11-27 the complete opt-in suite passed **153 tests with no skips**,
-including ten mapped-window GUI tests. It covers the original optics/CLI and
+On 2026-11-27 the complete opt-in suite passed **176 tests with no skips**,
+including eleven mapped-window GUI tests. It covers the original optics/CLI and
 desktop-health behavior, serial locks/mocks, bounded codec, controller faults,
 simulated plant/PI, framed host, exposure timing, streamed provenance and worker
-shutdown. Headless discovery intentionally skips the ten mapped-window tests.
+shutdown. Headless discovery intentionally skips the eleven mapped-window tests.
 Source syntax, documentation links and `git diff --check` passed. No tests open
 a physical serial port or establish electrical/motor/optical readiness.
 
