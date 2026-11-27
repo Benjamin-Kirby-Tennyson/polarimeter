@@ -25,3 +25,14 @@ DNS. Simulation CSV and parsers passed; plotting remains unverified until
 those dependencies can be installed. See README for recovery/verification.
 Group database lists cuqit in dialout, but session active groups omit dialout.
 Do not claim hardware or GUI verification based on headless/simulated tests.
+
+## Hardware context handoff (2026-11-26)
+
+Before firmware, electrical, CAD, or motor-control work, read
+[docs/hardware-integration-context.md](docs/hardware-integration-context.md).
+It records the latest reported TB6612FNG/ESP32 wiring, encoder uncertainties,
+Pi setup, mechanical dimensions, and validation requirements. It supplements
+rather than certifies the initial setup above; reconcile against current source
+and physical hardware. Do not energize or open ports during the initial audit.
+Keep important engineering decisions and verification results in versioned docs
+so ChatGPT and Codex can share context via the repository.
